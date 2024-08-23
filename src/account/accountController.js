@@ -11,7 +11,11 @@ export const getAllAccounts = async (req, res) => {
 
 export const createAccount = async (req, res) => {
   try {
-    const newAccount = await accountService.createAccount(req.body);
+    const { name, phone, position, email, password, role } = req.body;
+    if (!name || !phone || !position || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    const newAccount = await accountService.createAccount({ name, phone, position, email, password, role });
     res.status(201).json(newAccount);
   } catch (error) {
     res.status(500).json({ error: error.message });

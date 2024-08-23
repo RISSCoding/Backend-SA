@@ -14,8 +14,10 @@ enum Role {
 
 model Account {
   userID      Int     @id @default(autoincrement())
-  address     String
-  phoneNumber String
+  name        String
+  phone       String
+  position    String
+  email       String
   password    String
   role        Role    @default(USER)
 }

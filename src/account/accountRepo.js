@@ -8,8 +8,10 @@ export const getAllAccounts = async () => {
     const accounts = await prisma.account.findMany({
       select: {
         userID: true,
-        address: true,
-        phoneNumber: true,
+        name: true,
+        phone: true,
+        position: true,
+        email: true,
         role: true,
       }
     });
@@ -24,9 +26,12 @@ export const createAccount = async (accountData) => {
     const hashedPassword = await bcrypt.hash(accountData.password, 10);
     const newAccount = await prisma.account.create({
       data: {
-        ...accountData,
+        name: accountData.name,
+        phone: accountData.phone,
+        position: accountData.position,
+        email: accountData.email,
         password: hashedPassword,
-        role: accountData.role || 'USER', // Default to USER if not specified
+        role: accountData.role || 'USER',
       },
     });
     const { password, ...accountWithoutPassword } = newAccount;
@@ -42,8 +47,10 @@ export const getAccountById = async (id) => {
       where: { userID: id },
       select: {
         userID: true,
-        address: true,
-        phoneNumber: true,
+        name: true,
+        phone: true,
+        position: true,
+        email: true,
         role: true,
       }
     });
