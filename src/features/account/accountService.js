@@ -1,12 +1,8 @@
+import bcrypt from 'bcrypt';
 import * as accountRepo from './accountRepo.js';
 
 export const getAllAccounts = async () => {
-  try {
-    const accounts = await accountRepo.getAllAccounts();
-    return accounts;
-  } catch (error) {
-    throw error;
-  }
+  return await accountRepo.getAllAccounts();
 };
 
 export const createAccount = async (accountData) => {
@@ -25,4 +21,13 @@ export const getAccountById = async (id) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const verifyAccount = async (email, password) => {
+  const account = await accountRepo.getAccountByEmail(email);
+  if (account && await bcrypt.compare(password, account.password)) {
+    const { password, ...accountWithoutPassword } = account;
+    return accountWithoutPassword;
+  }
+  return null;
 };

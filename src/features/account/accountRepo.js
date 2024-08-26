@@ -1,23 +1,22 @@
-import { PrismaClient } from '@prisma/client';
+
 import bcrypt from 'bcrypt';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export const getAllAccounts = async () => {
   try {
-    const accounts = await prisma.account.findMany({
+    return await prisma.account.findMany({
       select: {
         userID: true,
         name: true,
-        phone: true,
-        position: true,
         email: true,
         role: true,
-      }
+      },
     });
-    return accounts;
   } catch (error) {
-    throw new Error('Error fetching accounts');
+    console.error('Error fetching all accounts:', error);
+    throw new Error('Error fetching all accounts');
   }
 };
 
@@ -57,5 +56,20 @@ export const getAccountById = async (id) => {
     return account;
   } catch (error) {
     throw new Error('Error fetching account');
+  }
+};
+
+export const getAccountByEmail = async (email) => {
+  try {
+    const account = await prisma.account.findUnique({
+      where: { email: email },
+    });
+    if (!account) {
+      throw new Error('Account not found');
+    }
+    return account;
+  } catch (error) {
+    console.error('Error fetching account by email:', error);
+    throw new Error('Error fetching account by email');
   }
 };
