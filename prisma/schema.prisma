@@ -20,8 +20,19 @@ model Account {
   email       String  @unique
   password    String
   role        Role    @default(USER)
+  faceData    String? // Menyimpan data wajah sebagai string (bisa berupa URL gambar atau data base64)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  presences Presence[]
+}
+
+model Presence {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+  user      Account  @relation(fields: [userId], references: [userID])
 }
 
 model Schedule {

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presensi dengan Face Recognition</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD92x08uR7P1omNhRI4JraXzCAjmSOexCo"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <style>
+        #videoElement {
+            width: 640px;
+            height: 480px;
+        }
+    </style>
+</head>
+<body>
+    <video id="videoElement" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <div id="status"></div>
+
+    <script src="presence.js"></script>
+</body>
+</html>
