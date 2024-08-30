@@ -43,3 +43,16 @@ model Schedule {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Presence {
+  id              Int      @id @default(autoincrement())
+  checkInTime     DateTime?
+  checkOutTime    DateTime?
+  checkInPhoto    String?
+  checkOutPhoto   String?
+  checkInLocation String?  // Lokasi check-in (misalnya "Latitude, Longitude")
+  checkOutLocation String? // Lokasi check-out (misalnya "Latitude, Longitude")
+  status          String   @default("Present")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

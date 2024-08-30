@@ -7,12 +7,14 @@
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "prisma": {
+    "schema": "prisma/schema.prisma"},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^5.18.0",
+    "@prisma/client": "^5.19.0",
     "bcrypt": "^5.1.1",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2"
