@@ -32,19 +32,22 @@ model Schedule {
   endTime   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  presences Presence[] // Relasi ke Presence
 }
 
 model Presence {
   id              Int      @id @default(autoincrement())
   checkInTime     DateTime?
   checkOutTime    DateTime?
-  checkInPhoto    String?
-  checkOutPhoto   String?
+  // checkInPhoto    String?
+  // checkOutPhoto   String?
   checkInLocation String?  // Lokasi check-in (misalnya "Latitude, Longitude")
   checkOutLocation String? // Lokasi check-out (misalnya "Latitude, Longitude")
   status          String   @default("Present")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   userID          Int
+  scheduleID      Int      // Foreign key ke Schedule
   Account         Account  @relation(fields: [userID], references: [userID])
+  Schedule        Schedule @relation(fields: [scheduleID], references: [id]) // Relasi ke Schedule
 }

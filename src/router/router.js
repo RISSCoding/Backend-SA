@@ -21,7 +21,7 @@ router.delete('/schedules/:id', authenticateToken, isAdmin, scheduleController.d
 
 // Presence routes
 router.post('/presence/check-in', authenticateToken, presenceController.handleCheckIn);
-router.post('/presence/check-out', authenticateToken, presenceController.handleCheckOut);
+// router.post('/presence/check-out', authenticateToken, presenceController.handleCheckOut);
 
 
 export default router;

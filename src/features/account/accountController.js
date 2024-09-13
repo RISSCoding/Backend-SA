@@ -12,14 +12,14 @@ export const getAllAccounts = async (req, res) => {
 };
 
 export const createAccount = async (req, res) => {
-  const { name, phone, position, email, password, faceImage } = req.body;
+  const { name, phone, position, email, password } = req.body;
 
-  // Deteksi wajah dari gambar yang diambil dari kamera
-  const faceData = await detectFace(faceImage);
+  // // Deteksi wajah dari gambar yang diambil dari kamera
+  // const faceData = await detectFace(faceImage);
   
-  if (!faceData) {
-    return res.status(400).json({ message: 'Face not detected in the provided image' });
-  }
+  // if (!faceData) {
+  //   return res.status(400).json({ message: 'Face not detected in the provided image' });
+  // }
 
   const newAccount = {
     name,
@@ -27,7 +27,7 @@ export const createAccount = async (req, res) => {
     position,
     email,
     password,
-    faceFeatures: faceData.descriptor,  // Simpan fitur wajah di kolom faceFeatures
+    // faceFeatures: faceData.descriptor,  // Simpan fitur wajah di kolom faceFeatures
   };
 
   const account = await accountService.createAccount(newAccount);
