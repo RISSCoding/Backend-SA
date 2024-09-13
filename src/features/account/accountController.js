@@ -12,16 +12,27 @@ export const getAllAccounts = async (req, res) => {
 };
 
 export const createAccount = async (req, res) => {
-  try {
-    const { name, phone, position, email, password, role } = req.body;
-    if (!name || !phone || !position || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-    const newAccount = await accountService.createAccount({ name, phone, position, email, password, role });
-    res.status(201).json(newAccount);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { name, phone, position, email, password, faceImage } = req.body;
+
+  // Deteksi wajah dari gambar yang diambil dari kamera
+  const faceData = await detectFace(faceImage);
+  
+  if (!faceData) {
+    return res.status(400).json({ message: 'Face not detected in the provided image' });
   }
+
+  const newAccount = {
+    name,
+    phone,
+    position,
+    email,
+    password,
+    faceFeatures: faceData.descriptor,  // Simpan fitur wajah di kolom faceFeatures
+  };
+
+  const account = await accountService.createAccount(newAccount);
+
+  return res.status(201).json({ message: 'Account created successfully', account });
 };
 
 export const getAccountById = async (req, res) => {
