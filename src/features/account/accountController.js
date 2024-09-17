@@ -65,9 +65,25 @@ export const login = async (req, res) => {
 export const approveAccount = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedAccount = await accountService.updateAccount(id, { isApproved: true });
-    return res.status(200).json({ message: 'Account approved', updatedAccount });
+
+    // Convert id to integer
+    const userIdInt = parseInt(id, 10);
+
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+
+    // Pastikan account ada sebelum diperbarui
+    const account = await accountService.getAccountById(userIdInt);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    // Update account
+    const updatedAccount = await accountService.updateAccount(userIdInt, { isApproved: true });
+    res.status(200).json({ message: 'Account approved', updatedAccount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+

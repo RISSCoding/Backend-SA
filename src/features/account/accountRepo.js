@@ -73,3 +73,15 @@ export const getAccountByEmail = async (email) => {
     throw new Error('Error fetching account by email');
   }
 };
+
+export const updateAccount = async (id, updateData) => {
+  try {
+    return await prisma.account.update({
+      where: { userID: id },
+      data: updateData,
+    });
+  } catch (error) {
+    console.error('Prisma error:', error);  // Cetak error secara lebih detail
+    throw new Error('Error updating account: ' + error.message);
+  }
+};

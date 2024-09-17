@@ -23,6 +23,14 @@ export const getAccountById = async (id) => {
   }
 };
 
+export const updateAccount = async (id, updateData) => {
+  try {
+    return await accountRepo.updateAccount(id, updateData);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const verifyAccount = async (email, password) => {
   const account = await accountRepo.getAccountByEmail(email);
   if (account && await bcrypt.compare(password, account.password)) {
