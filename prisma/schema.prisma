@@ -20,10 +20,12 @@ model Account {
   email       String     @unique
   password    String
   role        Role       @default(USER)
+  isApproved  Boolean    @default(false) // Status persetujuan admin
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  presences   Presence[] // Tambahkan relasi ke Presence di sini
+  presences   Presence[] 
 }
+
 
 model Schedule {
   id        Int      @id @default(autoincrement())
@@ -32,15 +34,15 @@ model Schedule {
   endTime   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  presences Presence[] // Relasi ke Presence
+  presences Presence[] 
 }
 
 model Presence {
   id              Int      @id @default(autoincrement())
   checkInTime     DateTime?
-  checkOutTime    DateTime?
-  // checkInPhoto    String?
-  // checkOutPhoto   String?
+  checkOutTime    DateTime?                                                                                                                                                                                                                                                                                                     
+  checkInPhoto    String?
+  checkOutPhoto   String?
   checkInLocation String?  // Lokasi check-in (misalnya "Latitude, Longitude")
   checkOutLocation String? // Lokasi check-out (misalnya "Latitude, Longitude")
   status          String   @default("Present")
@@ -48,6 +50,6 @@ model Presence {
   updatedAt       DateTime @updatedAt
   userID          Int
   scheduleID      Int      // Foreign key ke Schedule
-  Account         Account  @relation(fields: [userID], references: [userID])
+  Account            Account  @relation(fields: [userID], references: [userID])
   Schedule        Schedule @relation(fields: [scheduleID], references: [id]) // Relasi ke Schedule
 }

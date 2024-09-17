@@ -14,26 +14,20 @@ export const getAllAccounts = async (req, res) => {
 export const createAccount = async (req, res) => {
   const { name, phone, position, email, password } = req.body;
 
-  // // Deteksi wajah dari gambar yang diambil dari kamera
-  // const faceData = await detectFace(faceImage);
-  
-  // if (!faceData) {
-  //   return res.status(400).json({ message: 'Face not detected in the provided image' });
-  // }
-
   const newAccount = {
     name,
     phone,
     position,
     email,
     password,
-    // faceFeatures: faceData.descriptor,  // Simpan fitur wajah di kolom faceFeatures
+    isApproved: false,  // Set default isApproved to false
   };
 
   const account = await accountService.createAccount(newAccount);
 
-  return res.status(201).json({ message: 'Account created successfully', account });
+  return res.status(201).json({ message: 'Account created successfully, pending admin approval', account });
 };
+  
 
 export const getAccountById = async (req, res) => {
   try {
@@ -51,8 +45,12 @@ export const getAccountById = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login attempt for email:', email);
     const account = await accountService.verifyAccount(email, password);
+
+    if (!account.isApproved) {
+      return res.status(403).json({ message: 'Account not approved by admin' });
+    }
+
     if (account) {
       const token = jwt.sign({ userID: account.userID, role: account.role }, config.jwtSecret, { expiresIn: '1h' });
       res.json({ token });
@@ -60,7 +58,16 @@ export const login = async (req, res) => {
       res.status(401).json({ error: 'Invalid credentials' });
     }
   } catch (error) {
-    console.error('Login error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const approveAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedAccount = await accountService.updateAccount(id, { isApproved: true });
+    return res.status(200).json({ message: 'Account approved', updatedAccount });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
