@@ -1,26 +1,14 @@
-const PresenceRepository = require('../repositories/presenceRepository');
+// src/features/presence/presenceService.js
+import * as presenceRepo from './presenceRepo.js';
 
-const PresenceService = {
-  async createPresence(data) {
-    // Business logic, validation, etc.
-    return await PresenceRepository.createPresence(data);
-  },
-
-  async getPresenceById(presenceId) {
-    return await PresenceRepository.getPresenceById(presenceId);
-  },
-
-  async getAllPresences() {
-    return await PresenceRepository.getAllPresences();
-  },
-
-  async updatePresence(presenceId, data) {
-    return await PresenceRepository.updatePresence(presenceId, data);
-  },
-
-  async deletePresence(presenceId) {
-    return await PresenceRepository.deletePresence(presenceId);
-  },
+export const getTodaySchedule = async (userID) => {
+  return await presenceRepo.getTodaySchedule(userID);
 };
 
-module.exports = PresenceService;
+export const createPresence = async (userID, presenceData) => {
+  return await presenceRepo.createPresence(userID, presenceData);
+};
+
+export const updatePresence = async (presenceID, updateData) => {
+  return await presenceRepo.updatePresence(presenceID, updateData);
+};

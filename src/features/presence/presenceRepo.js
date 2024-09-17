@@ -1,40 +1,45 @@
-const prisma = require('../prisma');
+// src/features/presence/presenceRepo.js
 
-const PresenceRepository = {
-  async createPresence(data) {
-    return await prisma.presence.create({
-      data,
-    });
-  },
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
-  async getPresenceById(presenceId) {
-    return await prisma.presence.findUnique({
-      where: {
-        id: presenceId,
-      },
-    });
-  },
-
-  async getAllPresences() {
-    return await prisma.presence.findMany();
-  },
-
-  async updatePresence(presenceId, data) {
-    return await prisma.presence.update({
-      where: {
-        id: presenceId,
-      },
-      data,
-    });
-  },
-
-  async deletePresence(presenceId) {
-    return await prisma.presence.delete({
-      where: {
-        id: presenceId,
-      },
-    });
-  },
+const getTodaySchedule = async (userID) => {
+  const today = new Date();
+  return await prisma.schedule.findFirst({
+    where: {
+      AND: [
+        {
+          createdAt: {
+            gte: new Date(today.setHours(0, 0, 0, 0)),
+            lt: new Date(today.setHours(23, 59, 59, 999)),
+          },
+        },
+        {
+          userID: userID,
+        },
+      ],
+    },
+  });
 };
 
-module.exports = PresenceRepository;
+const createPresence = async (userID, presenceData) => {
+  return await prisma.presence.create({
+    data: {
+      ...presenceData,
+      userID: userID,
+    },
+  });
+};
+
+const updatePresence = async (presenceID, updateData) => {
+  return await prisma.presence.update({
+    where: { id: presenceID },
+    data: updateData,
+  });
+};
+
+export {
+  getTodaySchedule,
+  createPresence,
+  updatePresence,
+};
