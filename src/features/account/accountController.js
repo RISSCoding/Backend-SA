@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import config from '../../config/config.js';
 import * as accountService from './accountService.js';
+import { upload } from '../../middleware/uploadMiddleware.js';
+
 
 export const getAllAccounts = async (req, res) => {
   try {
@@ -13,19 +15,23 @@ export const getAllAccounts = async (req, res) => {
 
 export const createAccount = async (req, res) => {
   const { name, phone, position, email, password } = req.body;
-
+  const facePhoto = req.file?.path; 
   const newAccount = {
     name,
     phone,
     position,
     email,
     password,
+    facePhoto, 
     isApproved: false,
   };
 
-  const account = await accountService.createAccount(newAccount);
-
-  return res.status(201).json({ message: 'Account created successfully, pending admin approval', account });
+  try {
+    const account = await accountService.createAccount(newAccount);
+    return res.status(201).json({ message: 'Account created successfully, pending admin approval', account });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
   
 

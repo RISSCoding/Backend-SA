@@ -12,6 +12,20 @@ enum Role {
   ADMIN
 }
 
+enum LeaveType {
+  PERMISSION
+  SICK
+  HOLIDAY
+  OFFICEDUTY
+  WFH
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Account {
   userID      Int        @id @default(autoincrement())
   name        String
@@ -25,6 +39,7 @@ model Account {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   presences   Presence[] 
+  leaveRequests LeaveRequest[]
 }
 
 
@@ -52,6 +67,19 @@ model Presence {
   updatedAt       DateTime @updatedAt
   userID          Int
   scheduleID      Int      // Foreign key ke Schedule
-  Account            Account  @relation(fields: [userID], references: [userID])
+  Account         Account  @relation(fields: [userID], references: [userID])
   Schedule        Schedule @relation(fields: [scheduleID], references: [id]) // Relasi ke Schedule
+}
+
+model LeaveRequest {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        Account     @relation(fields: [userId], references: [userID])
+  type        LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  reason      String
+  status      LeaveStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }

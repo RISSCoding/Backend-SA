@@ -30,6 +30,7 @@ export const createAccount = async (accountData) => {
         position: accountData.position,
         email: accountData.email,
         password: hashedPassword,
+        facePhoto: accountData.facePhoto, 
         role: accountData.role || 'USER',
       },
     });
@@ -39,6 +40,7 @@ export const createAccount = async (accountData) => {
     throw new Error('Error creating account');
   }
 };
+
 
 export const getAccountById = async (id) => {
   try {
@@ -81,7 +83,7 @@ export const updateAccount = async (id, updateData) => {
       data: updateData,
     });
   } catch (error) {
-    console.error('Prisma error:', error);  // Cetak error secara lebih detail
+    console.error('Prisma error:', error);  
     throw new Error('Error updating account: ' + error.message);
   }
 };

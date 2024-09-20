@@ -16,11 +16,10 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.19.0",
-    "@tensorflow/tfjs-core": "^4.21.0",
     "bcrypt": "^5.1.1",
     "express": "^4.19.2",
-    "face-api.js": "^0.20.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
