@@ -20,7 +20,7 @@ export const createAccount = async (req, res) => {
     position,
     email,
     password,
-    isApproved: false,  // Set default isApproved to false
+    isApproved: false,
   };
 
   const account = await accountService.createAccount(newAccount);
@@ -66,20 +66,17 @@ export const approveAccount = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Convert id to integer
     const userIdInt = parseInt(id, 10);
 
     if (isNaN(userIdInt)) {
       return res.status(400).json({ message: 'Invalid user ID format' });
     }
 
-    // Pastikan account ada sebelum diperbarui
     const account = await accountService.getAccountById(userIdInt);
     if (!account) {
       return res.status(404).json({ message: 'Account not found' });
     }
 
-    // Update account
     const updatedAccount = await accountService.updateAccount(userIdInt, { isApproved: true });
     res.status(200).json({ message: 'Account approved', updatedAccount });
   } catch (error) {
@@ -87,3 +84,32 @@ export const approveAccount = async (req, res) => {
   }
 };
 
+export const getPendingAccounts = async (req, res) => {
+  try {
+    const pendingAccounts = await accountService.getPendingAccounts();
+    res.status(200).json(pendingAccounts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const rejectAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userIdInt = parseInt(id, 10);
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+
+    const account = await accountService.getAccountById(userIdInt);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    await accountService.deleteAccount(userIdInt);
+    res.status(200).json({ message: 'Account rejected and deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -85,3 +85,32 @@ export const updateAccount = async (id, updateData) => {
     throw new Error('Error updating account: ' + error.message);
   }
 };
+
+export const getPendingAccounts = async () => {
+  try {
+    return await prisma.account.findMany({
+      where: {
+        isApproved: false,
+      },
+      select: {
+        userID: true,
+        name: true,
+        email: true,
+        phone: true,
+        position: true,
+      },
+    });
+  } catch (error) {
+    throw new Error('Error fetching pending accounts');
+  }
+};
+
+export const deleteAccount = async (id) => {
+  try {
+    return await prisma.account.delete({
+      where: { userID: id },
+    });
+  } catch (error) {
+    throw new Error('Error deleting account');
+  }
+};

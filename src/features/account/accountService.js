@@ -39,3 +39,20 @@ export const verifyAccount = async (email, password) => {
   }
   return null;
 };
+
+export const getPendingAccounts = async () => {
+  try {
+    const accounts = await accountRepo.getPendingAccounts();
+    return accounts;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteAccount = async (id) => {
+  try {
+    return await accountRepo.deleteAccount(id);
+  } catch (error) {
+    throw error;
+  }
+};
