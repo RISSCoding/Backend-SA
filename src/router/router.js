@@ -12,7 +12,7 @@ router.post('/login', accountController.login);
 router.get('/accounts', accountController.getAllAccounts);
 router.post('/accounts', accountController.createAccount);
 router.get('/accounts/:id', authenticateToken, accountController.getAccountById);
-router.put('/accounts/:id/approve', authenticateToken, isAdmin, accountController.approveAccount);
+router.put('/accounts/:id/approve', accountController.approveAccount);
 
 // Schedule routes
 router.get('/schedules', authenticateToken, scheduleController.getAllSchedules);

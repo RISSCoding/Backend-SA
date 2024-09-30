@@ -20,24 +20,23 @@ export const getAllAccounts = async () => {
   }
 };
 
-export const createAccount = async (accountData) => {
+export const create = async (accountData) => {
   try {
-    const hashedPassword = await bcrypt.hash(accountData.password, 10);
     const newAccount = await prisma.account.create({
       data: {
         name: accountData.name,
-        phone: accountData.phone,
-        position: accountData.position,
         email: accountData.email,
-        password: hashedPassword,
-        facePhoto: accountData.facePhoto, 
-        role: accountData.role || 'USER',
+        password: accountData.password,
+        phone: accountData.phone || "",
+        position: null,
+        facePhoto: null,
+        role: accountData.role || "USER",
+        isApproved: false,
       },
     });
-    const { password, ...accountWithoutPassword } = newAccount;
-    return accountWithoutPassword;
+    return newAccount;
   } catch (error) {
-    throw new Error('Error creating account');
+    throw new Error(`Error creating account: ${error.message}`);
   }
 };
 

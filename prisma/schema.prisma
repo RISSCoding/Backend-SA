@@ -27,15 +27,15 @@ enum LeaveStatus {
 }
 
 model Account {
-  userID      Int        @id @default(autoincrement())
+  userID      Int      @id @default(autoincrement())
   name        String
-  phone       String
-  position    String
-  email       String     @unique
+  email       String   @unique
   password    String
-  role        Role       @default(USER)
-  isApproved  Boolean    @default(false) 
-  facePhoto   String?    
+  phone       String?  
+  position    String?
+  facePhoto   String?
+  role        String   @default("USER")
+  isApproved  Boolean  @default(false)   
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   presences   Presence[] 

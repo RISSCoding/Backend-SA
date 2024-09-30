@@ -14,25 +14,35 @@ export const getAllAccounts = async (req, res) => {
 };
 
 export const createAccount = async (req, res) => {
-  const { name, phone, position, email, password } = req.body;
-  const facePhoto = req.file?.path; 
+  const { name, email, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
   const newAccount = {
     name,
-    phone,
-    position,
     email,
     password,
-    facePhoto, 
+    phone: null,
+    position: null,
+    facePhoto: null,
     isApproved: false,
   };
 
   try {
     const account = await accountService.createAccount(newAccount);
-    return res.status(201).json({ message: 'Account created successfully, pending admin approval', account });
+    return res
+      .status(201)
+      .json({
+        message: "Account created successfully, pending admin approval",
+        account,
+      });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
   
 
 export const getAccountById = async (req, res) => {

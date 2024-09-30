@@ -5,13 +5,17 @@ export const getAllAccounts = async () => {
   return await accountRepo.getAllAccounts();
 };
 
+
 export const createAccount = async (accountData) => {
-  try {
-    const newAccount = await accountRepo.createAccount(accountData);
-    return newAccount;
-  } catch (error) {
-    throw error;
-  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(accountData.password, salt);
+
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
+  };
+
+  return await accountRepo.create(newAccount);
 };
 
 export const getAccountById = async (id) => {
