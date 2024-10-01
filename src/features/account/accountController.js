@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import config from '../../config/config.js';
-import * as accountService from './accountService.js';
-import { upload } from '../../middleware/uploadMiddleware.js';
+//accountController.js
 
+import jwt from 'jsonwebtoken';
+import config from '../../config/config.js'; 
+import * as accountService from './accountService.js';
 
 export const getAllAccounts = async (req, res) => {
   try {
@@ -27,23 +27,35 @@ export const createAccount = async (req, res) => {
     phone: null,
     position: null,
     facePhoto: null,
+    division: null,  // Division dibiarkan null
     isApproved: false,
   };
 
   try {
     const account = await accountService.createAccount(newAccount);
-    return res
-      .status(201)
-      .json({
-        message: "Account created successfully, pending admin approval",
-        account,
-      });
+    return res.status(201).json({
+      message: "Account created successfully, pending admin approval",
+      account,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-  
+export const editAccount = async (req, res) => {
+  const { userID } = req.user; // Ambil userID dari token JWT
+  const updateData = req.body; // Data yang ingin diupdate
+
+  try {
+    const updatedAccount = await accountService.updateAccount(userID, updateData);
+    return res.status(200).json({
+      message: "Account updated successfully",
+      updatedAccount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const getAccountById = async (req, res) => {
   try {

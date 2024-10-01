@@ -20,25 +20,35 @@ export const getAllAccounts = async () => {
   }
 };
 
-export const create = async (accountData) => {
+export const createAccount = async (req, res) => {
+  const { name, email, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  const newAccount = {
+    name,
+    email,
+    password,
+    phone: null,
+    position: null,
+    facePhoto: null,
+    division: null,  // Division dibiarkan null
+    isApproved: false,
+  };
+
   try {
-    const newAccount = await prisma.account.create({
-      data: {
-        name: accountData.name,
-        email: accountData.email,
-        password: accountData.password,
-        phone: accountData.phone || "",
-        position: null,
-        facePhoto: null,
-        role: accountData.role || "USER",
-        isApproved: false,
-      },
+    const account = await accountService.createAccount(newAccount);
+    return res.status(201).json({
+      message: "Account created successfully, pending admin approval",
+      account,
     });
-    return newAccount;
   } catch (error) {
-    throw new Error(`Error creating account: ${error.message}`);
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 
 export const getAccountById = async (id) => {
@@ -79,13 +89,20 @@ export const updateAccount = async (id, updateData) => {
   try {
     return await prisma.account.update({
       where: { userID: id },
-      data: updateData,
+      data: {
+        name: updateData.name || undefined,  // Hanya update jika diberikan
+        phone: updateData.phone || undefined,
+        position: updateData.position || undefined,
+        division: updateData.division || undefined,
+        facePhoto: updateData.facePhoto || undefined,
+      },
     });
   } catch (error) {
     console.error('Prisma error:', error);  
     throw new Error('Error updating account: ' + error.message);
   }
 };
+
 
 export const getPendingAccounts = async () => {
   try {

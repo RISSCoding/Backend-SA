@@ -35,6 +35,7 @@ export const updateAccount = async (id, updateData) => {
   }
 };
 
+
 export const verifyAccount = async (email, password) => {
   const account = await accountRepo.getAccountByEmail(email);
   if (account && await bcrypt.compare(password, account.password)) {

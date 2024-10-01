@@ -26,49 +26,47 @@ enum LeaveStatus {
   REJECTED
 }
 
+enum NotificationType {
+  LEAVE_APPROVAL
+  PRESENCE_DELAY
+}
+
+enum PresenceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
 model Account {
   userID      Int      @id @default(autoincrement())
   name        String
   email       String   @unique
   password    String
   phone       String?  
-  position    String?
-  facePhoto   String?
-  role        String   @default("USER")
-  isApproved  Boolean  @default(false)   
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   presences   Presence[] 
-  leaveRequests LeaveRequest[]
+  notifications Notification[]
+  leaverequest  LeaveRequest[]
 }
 
-
+model Presence {
+  id              Int      @id @default(autoincrement())
+  checkInTime     DateTime?
+  checkOutTime    DateTime? 
+  checkInLocation String?
+  checkOutLocation String? 
+  status          PresenceStatus @default(PRESENT)
+  userID          Int
+  Account         Account  @relation(fields: [userID], references: [userID])
+}
 
 model Schedule {
   id        Int      @id @default(autoincrement())
   date      DateTime
   startTime DateTime
   endTime   DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  presences Presence[] 
-}
-
-model Presence {
-  id              Int      @id @default(autoincrement())
-  checkInTime     DateTime?
-  checkOutTime    DateTime?                                                                                                                                                                                                                                                                                                     
-  checkInPhoto    String?
-  checkOutPhoto   String?
-  checkInLocation String?  // Lokasi check-in (misalnya "Latitude, Longitude")
-  checkOutLocation String? // Lokasi check-out (misalnya "Latitude, Longitude")
-  status          String   @default("Present")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  userID          Int
-  scheduleID      Int      // Foreign key ke Schedule
-  Account         Account  @relation(fields: [userID], references: [userID])
-  Schedule        Schedule @relation(fields: [scheduleID], references: [id]) // Relasi ke Schedule
 }
 
 model LeaveRequest {
@@ -82,4 +80,14 @@ model LeaveRequest {
   status      LeaveStatus @default(PENDING)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
+  isRead    Boolean  @default(false)
+  type      NotificationType
+  Account   Account  @relation(fields: [userId], references: [userID])
+  createdAt DateTime @default(now())
 }
