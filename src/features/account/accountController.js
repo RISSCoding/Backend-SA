@@ -1,5 +1,7 @@
+//accountController.js
+
 import jwt from 'jsonwebtoken';
-import config from '../../config/config.js';
+import config from '../../config/config.js'; 
 import * as accountService from './accountService.js';
 
 export const getAllAccounts = async (req, res) => {
@@ -12,13 +14,44 @@ export const getAllAccounts = async (req, res) => {
 };
 
 export const createAccount = async (req, res) => {
+  const { name, email, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  const newAccount = {
+    name,
+    email,
+    password,
+    phone: null,
+    position: null,
+    facePhoto: null,
+    division: null,  // Division dibiarkan null
+    isApproved: false,
+  };
+
   try {
-    const { name, phone, position, email, password, role } = req.body;
-    if (!name || !phone || !position || !email || !password) {
-      return res.status(400).json({ error: 'All fields are required' });
-    }
-    const newAccount = await accountService.createAccount({ name, phone, position, email, password, role });
-    res.status(201).json(newAccount);
+    const account = await accountService.createAccount(newAccount);
+    return res.status(201).json({
+      message: "Account created successfully, pending admin approval",
+      account,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const editAccount = async (req, res) => {
+  const { userID } = req.user; // Ambil userID dari token JWT
+  const updateData = req.body; // Data yang ingin diupdate
+
+  try {
+    const updatedAccount = await accountService.updateAccount(userID, updateData);
+    return res.status(200).json({
+      message: "Account updated successfully",
+      updatedAccount,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -40,8 +73,12 @@ export const getAccountById = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login attempt for email:', email);
     const account = await accountService.verifyAccount(email, password);
+
+    if (!account.isApproved) {
+      return res.status(403).json({ message: 'Account not approved by admin' });
+    }
+
     if (account) {
       const token = jwt.sign({ userID: account.userID, role: account.role }, config.jwtSecret, { expiresIn: '1h' });
       res.json({ token });
@@ -49,7 +86,58 @@ export const login = async (req, res) => {
       res.status(401).json({ error: 'Invalid credentials' });
     }
   } catch (error) {
-    console.error('Login error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const approveAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userIdInt = parseInt(id, 10);
+
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+
+    const account = await accountService.getAccountById(userIdInt);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    const updatedAccount = await accountService.updateAccount(userIdInt, { isApproved: true });
+    res.status(200).json({ message: 'Account approved', updatedAccount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getPendingAccounts = async (req, res) => {
+  try {
+    const pendingAccounts = await accountService.getPendingAccounts();
+    res.status(200).json(pendingAccounts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const rejectAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userIdInt = parseInt(id, 10);
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+
+    const account = await accountService.getAccountById(userIdInt);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+
+    await accountService.deleteAccount(userIdInt);
+    res.status(200).json({ message: 'Account rejected and deleted' });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

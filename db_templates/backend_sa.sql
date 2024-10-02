@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 26, 2024 at 09:53 AM
+-- Generation Time: Sep 30, 2024 at 02:37 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -29,12 +29,14 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `account` (
   `userID` int(11) NOT NULL,
-  `password` varchar(191) NOT NULL,
-  `role` enum('USER','ADMIN') NOT NULL DEFAULT 'USER',
-  `email` varchar(191) NOT NULL,
   `name` varchar(191) NOT NULL,
-  `phone` varchar(191) NOT NULL,
-  `position` varchar(191) NOT NULL,
+  `email` varchar(191) NOT NULL,
+  `password` varchar(191) NOT NULL,
+  `phone` varchar(191) DEFAULT NULL,
+  `position` varchar(191) DEFAULT NULL,
+  `facePhoto` varchar(191) DEFAULT NULL,
+  `role` varchar(191) NOT NULL DEFAULT 'USER',
+  `isApproved` tinyint(1) NOT NULL DEFAULT 0,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
   `updatedAt` datetime(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -43,9 +45,50 @@ CREATE TABLE `account` (
 -- Dumping data for table `account`
 --
 
-INSERT INTO `account` (`userID`, `password`, `role`, `email`, `name`, `phone`, `position`, `createdAt`, `updatedAt`) VALUES
-(1, '$2b$10$zh8fqGWCDpTJhdMA6IT7j.PmwpKORKSLC3dgPnEq45dZzm9rtVA.S', 'USER', 'rafifpm@gmail.com', 'M Rafif', '08123456789', 'Project Manager', '2024-08-26 07:30:44.276', '2024-08-26 07:30:44.276'),
-(2, '$2b$10$WKkn7Aokft33VJrDLnr4WOJMZCowPI8npstrv/5oBHB5CteiLXlLe', 'ADMIN', 'farisbe@gmail.com', 'M Faris', '08123456788', 'Backend Developer', '2024-08-26 07:31:42.804', '2024-08-26 07:31:42.804');
+INSERT INTO `account` (`userID`, `name`, `email`, `password`, `phone`, `position`, `facePhoto`, `role`, `isApproved`, `createdAt`, `updatedAt`) VALUES
+(1, 'rafif', 'rafif@gmail.com', '$2b$10$6V6I0RbdVFAvIHf7Gr5uUe1USRBVMvzbsh/bTEf5etgeITLl5jlVK', '', NULL, NULL, 'USER', 1, '2024-09-21 09:06:21.802', '2024-09-21 09:09:05.348'),
+(2, 'faris', 'faris@gmail.com', '$2b$10$ftUK6CtxD.ie1xZUcPX/l.MtBhax1TcYbru60MPjuyAf703qISuMy', '', NULL, NULL, 'USER', 0, '2024-09-21 09:43:39.787', '2024-09-21 09:43:39.787'),
+(3, 'jaki', 'jaki@gmail.com', '$2b$10$RrrOB.c5CT4NldTQYyyr4.36x5rPbkXEEVzz3RGGMLOmoTVUwq0HW', '', NULL, NULL, 'USER', 0, '2024-09-21 09:44:45.636', '2024-09-21 09:44:45.636'),
+(4, 'yur', 'yur@gmail.com', '$2b$10$PmFYOqUe20lJeW5k3psY5ONyvRqhV63au9dU78h1SAF87iYQlc1Ki', '', NULL, NULL, 'USER', 1, '2024-09-21 09:53:27.136', '2024-09-21 09:55:14.702');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `leaverequest`
+--
+
+CREATE TABLE `leaverequest` (
+  `id` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
+  `type` enum('PERMISSION','SICK','HOLIDAY','OFFICEDUTY','WFH') NOT NULL,
+  `startDate` datetime(3) NOT NULL,
+  `endDate` datetime(3) NOT NULL,
+  `reason` varchar(191) NOT NULL,
+  `status` enum('PENDING','APPROVED','REJECTED') NOT NULL DEFAULT 'PENDING',
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `presence`
+--
+
+CREATE TABLE `presence` (
+  `id` int(11) NOT NULL,
+  `checkInTime` datetime(3) DEFAULT NULL,
+  `checkOutTime` datetime(3) DEFAULT NULL,
+  `checkInPhoto` varchar(191) DEFAULT NULL,
+  `checkOutPhoto` varchar(191) DEFAULT NULL,
+  `checkInLocation` varchar(191) DEFAULT NULL,
+  `checkOutLocation` varchar(191) DEFAULT NULL,
+  `status` varchar(191) NOT NULL DEFAULT 'Present',
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL,
+  `userID` int(11) NOT NULL,
+  `scheduleID` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -61,13 +104,6 @@ CREATE TABLE `schedule` (
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
   `updatedAt` datetime(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `schedule`
---
-
-INSERT INTO `schedule` (`id`, `date`, `startTime`, `endTime`, `createdAt`, `updatedAt`) VALUES
-(1, '2024-08-27 00:00:00.000', '2024-08-27 09:00:00.000', '2024-08-27 17:00:00.000', '2024-08-26 07:48:41.234', '2024-08-26 07:48:41.234');
 
 -- --------------------------------------------------------
 
@@ -91,13 +127,7 @@ CREATE TABLE `_prisma_migrations` (
 --
 
 INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_name`, `logs`, `rolled_back_at`, `started_at`, `applied_steps_count`) VALUES
-('5e6fc306-0f16-4485-9125-057f980ce0b9', '51dc0a95d9f7ea1c9cfa52d049d36097dcb8229486ae64ed2a33e3f59af83999', '2024-08-23 04:23:13.830', '20240823012259_created_account_data', NULL, NULL, '2024-08-23 04:23:13.121', 1),
-('7729d818-baa2-413f-8bbb-3c401688511c', 'a28219254bbfffe55ea62b132f224cc2834571181e2e9d4f7682cf663f49c7f1', '2024-08-23 04:23:14.180', '20240823013838_added_role_to_account', NULL, NULL, '2024-08-23 04:23:13.888', 1),
-('9b59450f-1e20-4871-b5f1-c95d7496650b', '556c8c047872f238f500bda22f03ea1671e10a8ec5d50d2b25981a052efcf490', '2024-08-23 07:26:35.934', '20240823072635_add_position_field', NULL, NULL, '2024-08-23 07:26:35.603', 1),
-('9dee7607-acc2-4c4b-8bab-fb61f750231c', '487b7341e4f2ce72fc5aa6e0ef2e9769e90db20c5d53f64f43a63a1cce9898dd', '2024-08-26 07:13:23.134', '20240826071322_add_schedule_model', NULL, NULL, '2024-08-26 07:13:22.711', 1),
-('a12749a9-9e17-42ce-a6b8-93b1bade1c7d', '7cb14004d3b7beba6fdaf64f6df64faf2c12d2277584b9b9e1809e4a55159d3a', '2024-08-26 07:23:22.179', '20240826072321_update_account_data', NULL, NULL, '2024-08-26 07:23:21.742', 1),
-('c30d9b9f-0a7a-47e0-8d27-b4676a2d811b', 'a555f708946a89d7b1f26914530733d1f615b324307190acb2d07ac7235ebab6', '2024-08-23 07:24:55.651', '20240823072455_update_defaut_role', NULL, NULL, '2024-08-23 07:24:55.262', 1),
-('c7b2a9dc-95e9-4acc-8c2d-97dd05625c9c', 'f30a14570d684f2288c879decfacbd2997c6c17bfdff94bccd9becc5b6b7245d', '2024-08-26 07:39:27.155', '20240826073926_make_email_unique', NULL, NULL, '2024-08-26 07:39:26.549', 1);
+('dec063b8-4505-4ee7-b5dc-2a7ded6b8a90', '6f90dd2cb31f6439564e061ab08433d5dcdd60a9d25e28b6fe64778c4675fdd1', '2024-09-21 09:05:22.464', '20240921090522_', NULL, NULL, '2024-09-21 09:05:22.334', 1);
 
 --
 -- Indexes for dumped tables
@@ -109,6 +139,21 @@ INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_na
 ALTER TABLE `account`
   ADD PRIMARY KEY (`userID`),
   ADD UNIQUE KEY `Account_email_key` (`email`);
+
+--
+-- Indexes for table `leaverequest`
+--
+ALTER TABLE `leaverequest`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `LeaveRequest_userId_fkey` (`userId`);
+
+--
+-- Indexes for table `presence`
+--
+ALTER TABLE `presence`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `Presence_userID_fkey` (`userID`),
+  ADD KEY `Presence_scheduleID_fkey` (`scheduleID`);
 
 --
 -- Indexes for table `schedule`
@@ -130,13 +175,42 @@ ALTER TABLE `_prisma_migrations`
 -- AUTO_INCREMENT for table `account`
 --
 ALTER TABLE `account`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `leaverequest`
+--
+ALTER TABLE `leaverequest`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `presence`
+--
+ALTER TABLE `presence`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `schedule`
 --
 ALTER TABLE `schedule`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `leaverequest`
+--
+ALTER TABLE `leaverequest`
+  ADD CONSTRAINT `LeaveRequest_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `account` (`userID`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `presence`
+--
+ALTER TABLE `presence`
+  ADD CONSTRAINT `Presence_scheduleID_fkey` FOREIGN KEY (`scheduleID`) REFERENCES `schedule` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `Presence_userID_fkey` FOREIGN KEY (`userID`) REFERENCES `account` (`userID`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
