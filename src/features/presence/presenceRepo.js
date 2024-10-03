@@ -1,18 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const createPresence = async (data) => {
-  return prisma.presence.create({ data });
+export const createPresence = async (data) => {
+  return prisma.presence.create({
+    data: {
+      checkInTime: new Date(),
+      checkInLocation: `${latitude},${longitude}`,
+      status: type === "checkIn" ? "PRESENT" : "LATE",
+      user: {
+        connect: { userID: userId },
+      },
+    },
+  });
 };
 
-const updatePresence = async (id, data) => {
+export const updatePresence = async (id, data) => {
   return prisma.presence.update({
     where: { id },
     data,
   });
 };
 
-const getPresenceByUserAndDate = async (userId, date) => {
+export const getPresenceByUserAndDate = async (userId, date) => {
   return prisma.presence.findFirst({
     where: {
       userID: userId,
@@ -24,8 +33,3 @@ const getPresenceByUserAndDate = async (userId, date) => {
   });
 };
 
-export {
-  createPresence,
-  updatePresence,
-  getPresenceByUserAndDate,
-};

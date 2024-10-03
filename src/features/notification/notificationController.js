@@ -1,7 +1,7 @@
 import * as notificationRepo from './notificationRepo.js';
 
-const getNotifications = async (req, res) => {
-  const userId = req.user.userId; // Get userId from the authenticated token
+export const getNotifications = async (req, res) => {
+  const userId = req.user.userId;
 
   try {
     const notifications = await notificationRepo.getNotificationsByUserId(userId);
@@ -12,6 +12,3 @@ const getNotifications = async (req, res) => {
   }
 };
 
-export default {
-  getNotifications,
-};

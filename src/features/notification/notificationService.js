@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const createNotification = async ({ userId, message, type }) => {
+export const createNotification = async ({ userId, message, type }) => {
   return await prisma.notification.create({
     data: {
       userId,
@@ -9,8 +9,4 @@ const createNotification = async ({ userId, message, type }) => {
       type,
     },
   });
-};
-
-export {
-  createNotification,
 };

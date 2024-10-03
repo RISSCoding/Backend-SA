@@ -20,36 +20,26 @@ export const getAllAccounts = async () => {
   }
 };
 
-export const createAccount = async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-
-  const newAccount = {
-    name,
-    email,
-    password,
-    phone: null,
-    position: null,
-    facePhoto: null,
-    division: null,  // Division dibiarkan null
-    isApproved: false,
-  };
-
+export const create = async (accountData) => {
   try {
-    const account = await accountService.createAccount(newAccount);
-    return res.status(201).json({
-      message: "Account created successfully, pending admin approval",
-      account,
+    const newAccount = await prisma.account.create({
+      data: {
+        name: accountData.name,
+        email: accountData.email,
+        password: accountData.password,
+        phone: accountData.phone || "",
+        position: null,
+        facePhoto: null,
+        role: accountData.role || "USER",
+        division: accountData.division || "", // Tambahkan division
+        isApproved: false,
+      },
     });
+    return newAccount;
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    throw new Error(`Error creating account: ${error.message}`);
   }
 };
-
-
 
 export const getAccountById = async (id) => {
   try {
@@ -59,9 +49,10 @@ export const getAccountById = async (id) => {
         userID: true,
         name: true,
         phone: true,
+        password: true,
         position: true,
+        division: true,
         email: true,
-        role: true,
       }
     });
     return account;
@@ -76,12 +67,12 @@ export const getAccountByEmail = async (email) => {
       where: { email: email },
     });
     if (!account) {
-      throw new Error('Account not found');
+      throw new Error("Account not found");
     }
     return account;
   } catch (error) {
-    console.error('Error fetching account by email:', error);
-    throw new Error('Error fetching account by email');
+    console.error("Error fetching account by email:", error);
+    throw new Error("Error fetching account by email");
   }
 };
 
@@ -90,16 +81,20 @@ export const updateAccount = async (id, updateData) => {
     return await prisma.account.update({
       where: { userID: id },
       data: {
-        name: updateData.name || undefined,  // Hanya update jika diberikan
+        name: updateData.name || undefined,
         phone: updateData.phone || undefined,
         position: updateData.position || undefined,
         division: updateData.division || undefined,
         facePhoto: updateData.facePhoto || undefined,
+        isApproved:
+          updateData.isApproved !== undefined
+            ? updateData.isApproved
+            : undefined, // Pastikan untuk memperbarui isApproved
       },
     });
   } catch (error) {
-    console.error('Prisma error:', error);  
-    throw new Error('Error updating account: ' + error.message);
+    console.error("Prisma error:", error);
+    throw new Error("Error updating account: " + error.message);
   }
 };
 

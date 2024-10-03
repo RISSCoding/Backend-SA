@@ -1,7 +1,7 @@
 import * as leaveRepo from './leaveRepo.js'; // Update from require to import
 import * as notificationService from '../notification/notificationService.js'; // Update from require to import
 
-const approveLeaveRequest = async (req, res) => {
+export const approveLeaveRequest = async (req, res) => {
   const { leaveId } = req.params;
 
   try {
@@ -21,14 +21,12 @@ const approveLeaveRequest = async (req, res) => {
   }
 };
 
-const rejectLeaveRequest = async (req, res) => {
+export const rejectLeaveRequest = async (req, res) => {
   const { leaveId } = req.params;
 
   try {
-    // Update leave status to Rejected
     const leaveRequest = await leaveRepo.updateLeaveRequest(leaveId, { status: 'REJECTED' });
 
-    // Send notification to the user
     await notificationService.createNotification({
       userId: leaveRequest.userId,
       message: 'Your leave request has been rejected.',
@@ -41,7 +39,4 @@ const rejectLeaveRequest = async (req, res) => {
   }
 };
 
-export {
-  approveLeaveRequest,
-  rejectLeaveRequest,
-};
+

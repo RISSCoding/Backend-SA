@@ -26,7 +26,7 @@ export const getLeaveRequestById = async (leaveId) => {
   });
 };
 
-const createNotification = async (userId, message, type) => {
+export const createNotification = async (userId, message, type) => {
   return await prisma.notification.create({
     data: {
       userId,
