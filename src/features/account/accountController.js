@@ -26,6 +26,7 @@ export const createAccount = async (req, res) => {
     password,
     phone: null,
     position: null,
+    division: null,
     facePhoto: null,
     isApproved: false,
   };

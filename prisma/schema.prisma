@@ -33,6 +33,7 @@ model Account {
   password    String
   phone       String?  
   position    String?
+  division    String?
   facePhoto   String?
   role        String   @default("USER")
   isApproved  Boolean  @default(false)   
