@@ -1,41 +1,57 @@
 import * as presenceService from './presenceService.js';
-import * as accountService from '../account/accountService.js';
 
-const checkLocation = (lat, long) => {
-  const validLat = -6.941800;
-  const validLong = 107.628500;
+export const recordPresence = async (req, res) => {
+  try {
+    console.log("Request Body:", req.body);
+    const { latitude, longitude, type } = req.body;
+    const userId = req.user.userID; // Pastikan ini mengambil userID
+
+    if (typeof latitude === "undefined" || typeof longitude === "undefined") {
+      return res
+        .status(400)
+        .json({ error: "latitude or longitude is not defined" });
+    }
+    
+    console.log("Extracted userID from token:", userId);
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is missing from token." });
+    }
+
+
+    if (!presenceService.isWithinAllowedRadius(latitude, longitude)) {
+      return res.status(400).json({
+        error: "You are not within the allowed radius for presence recording.",
+      });
+    }
+
+
+    if (!presenceService.isWorkDay(new Date())) {
+      return res
+        .status(400)
+        .json({ error: "Presence can only be recorded on work days" });
+    }
+
   
-  return lat === validLat && long === validLong;
+    if (!presenceService.isWithinWorkHours(new Date(), type)) {
+      return res.status(400).json({
+        error: `${
+          type === "checkIn" ? "Check-in" : "Check-out"
+        } is not allowed at this time.`,
+      });
+    }
+
+    const presence = await presenceService.recordPresence(
+      userId,
+      latitude,
+      longitude,
+      type
+    );
+    res.status(200).json(presence);
+  } catch (error) {
+    console.error("Error in recordPresence:", error);
+    res.status(400).json({ error: error.message });
+  }
 };
 
-export const handleCheckIn = async (req, res) => {
-  const { userID, lat, long, checkInPhoto } = req.body;
 
-  // Verifikasi lokasi check-in
-  if (!checkLocation(lat, long)) {
-    return res.status(400).json({ message: 'Invalid check-in location' });
-  }
-
-  // Verifikasi jadwal dan simpan data check-in jika waktu sesuai
-  const schedule = await presenceService.getTodaySchedule(userID);
-
-  if (!schedule) {
-    return res.status(400).json({ message: 'No schedule found for today' });
-  }
-
-  const currentTime = new Date();
-  if (currentTime < schedule.startTime || currentTime > schedule.endTime) {
-    return res.status(400).json({ message: 'You can only check-in during the scheduled time' });
-  }
-
-  const presenceData = {
-    checkInTime: currentTime,
-    checkInPhoto: checkInPhoto,  // Simpan URL/path dari foto check-in
-    checkInLocation: `${lat}, ${long}`,
-    status: 'Present',
-  };
-
-  const presence = await presenceService.createPresence(userID, presenceData);
-
-  return res.status(200).json({ message: 'Check-in successful', presence });
-};

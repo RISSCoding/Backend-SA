@@ -1,53 +1,35 @@
-// src/features/presence/presenceRepo.js
-
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const getTodaySchedule = async (userID) => {
-  const today = new Date();
-  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-
-  return await prisma.schedule.findFirst({
-    where: {
-      AND: [
-        {
-          date: {
-            gte: startOfDay,
-            lt: endOfDay,
-          },
-        },
-        {
-          Account: {
-            some: {
-              userID: userID,
-            },
-          },
-        },
-      ],
-    },
-  });
-};
-
-
-const createPresence = async (userID, presenceData) => {
-  return await prisma.presence.create({
+export const createPresence = async (data) => {
+  return prisma.presence.create({
     data: {
-      ...presenceData,
-      userID: userID,
+      checkInTime: new Date(),
+      checkInLocation: `${latitude},${longitude}`,
+      status: type === "checkIn" ? "PRESENT" : "LATE",
+      user: {
+        connect: { userID: userId },
+      },
     },
   });
 };
 
-const updatePresence = async (presenceID, updateData) => {
-  return await prisma.presence.update({
-    where: { id: presenceID },
-    data: updateData,
+export const updatePresence = async (id, data) => {
+  return prisma.presence.update({
+    where: { id },
+    data,
   });
 };
 
-export {
-  getTodaySchedule,
-  createPresence,
-  updatePresence,
+export const getPresenceByUserAndDate = async (userId, date) => {
+  return prisma.presence.findFirst({
+    where: {
+      userID: userId,
+      createdAt: {
+        gte: new Date(date.setHours(0, 0, 0, 0)),
+        lt: new Date(date.setHours(23, 59, 59, 999)),
+      },
+    },
+  });
 };
+

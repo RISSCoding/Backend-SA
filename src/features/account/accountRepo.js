@@ -20,30 +20,22 @@ export const getAllAccounts = async () => {
   }
 };
 
-export const createAccount = async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-
-  const newAccount = {
-    name,
-    email,
-    password,
-    phone: null,
-    position: null,
-    facePhoto: null,
-    division: null, // Division dibiarkan null
-    isApproved: false,
-  };
-
+export const create = async (accountData) => {
   try {
-    const account = await accountService.createAccount(newAccount);
-    return res.status(201).json({
-      message: "Account created successfully, pending admin approval",
-      account,
+    const newAccount = await prisma.account.create({
+      data: {
+        name: accountData.name,
+        email: accountData.email,
+        password: accountData.password,
+        phone: accountData.phone || "",
+        position: null,
+        facePhoto: null,
+        role: accountData.role || "USER",
+        division: accountData.division || "", // Tambahkan division
+        isApproved: false,
+      },
     });
+    return newAccount;
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -61,9 +53,7 @@ export const getAccountById = async (id) => {
         position: true,
         division: true,
         email: true,
-        role: true,
-        createdAt: true,
-      },
+      }
     });
     return account;
   } catch (error) {
@@ -96,6 +86,10 @@ export const updateAccount = async (id, updateData) => {
         position: updateData.position || undefined,
         division: updateData.division || undefined,
         facePhoto: updateData.facePhoto || undefined,
+        isApproved:
+          updateData.isApproved !== undefined
+            ? updateData.isApproved
+            : undefined, // Pastikan untuk memperbarui isApproved
       },
     });
   } catch (error) {
@@ -103,6 +97,7 @@ export const updateAccount = async (id, updateData) => {
     throw new Error("Error updating account: " + error.message);
   }
 };
+
 
 export const getPendingAccounts = async () => {
   try {
