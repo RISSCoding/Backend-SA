@@ -101,65 +101,42 @@ export const editAccount = async (req, res) => {
   }
 };
 
-export const approveAccount = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const userIdInt = parseInt(id, 10);
-
-    if (isNaN(userIdInt)) {
-      return res.status(400).json({ message: "Invalid user ID format" });
-    }
-
-    const account = await accountService.getAccountById(userIdInt);
-    if (!account) {
-      return res.status(404).json({ message: "Account not found" });
-    }
-
-    // Perbarui status isApproved menjadi true
-    const updatedAccount = await accountService.updateAccount(userIdInt, {
-      isApproved: true,
-    });
-
-    return res.status(200).json({
-      message: "Account approved successfully",
-      updatedAccount,
-    });
-  } catch (error) {
-    console.error("Error approving account:", error);
-    return res
-      .status(500)
-      .json({ error: "An error occurred while approving the account" });
-  }
-};
-
 
 export const getPendingAccounts = async (req, res) => {
   try {
-    const pendingAccounts = await accountService.getPendingAccounts();
-    res.status(200).json(pendingAccounts);
+    const accounts = await accountService.fetchPendingAccounts();
+    res.status(200).json(accounts); // This now includes passwords
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching pending accounts:", error);
+    res.status(500).json({
+      message: "Error fetching pending accounts",
+      error: error.message,
+    });
   }
 };
 
-export const rejectAccount = async (req, res) => {
+
+export const approveRejectAccount = async (req, res) => {
+  const { userId } = req.params;
+  const { action } = req.body;
+
   try {
-    const { id } = req.params;
-
-    const userIdInt = parseInt(id, 10);
-    if (isNaN(userIdInt)) {
-      return res.status(400).json({ message: "Invalid user ID format" });
+    if (action === "approve") {
+      await accountService.approveAccountById(userId);
+      return res.status(200).json({ message: "Account approved successfully" });
+    } else if (action === "reject") {
+      await accountService.rejectAccountById(userId);
+      return res.status(200).json({ message: "Account rejected successfully" });
+    } else {
+      return res.status(400).json({ message: "Invalid action" });
     }
-
-    const account = await accountService.getAccountById(userIdInt);
-    if (!account) {
-      return res.status(404).json({ message: "Account not found" });
-    }
-
-    await accountService.deleteAccount(userIdInt);
-    res.status(200).json({ message: "Account rejected and deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in approveRejectAccount:", error);
+    return res
+      .status(500)
+      .json({ message: "Error updating account", error: error.message });
   }
 };
+
+
+

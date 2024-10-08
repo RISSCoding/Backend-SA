@@ -1,8 +1,18 @@
 import express from "express";
+import cors from "cors"; // Import CORS
 import config from "./config/config.js";
 import router from "./router/router.js";
 
 const app = express();
+
+// Middleware untuk CORS
+app.use(
+  cors({
+    origin: "http://localhost:3001", // Ganti dengan URL frontend Anda
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true, // Jika perlu
+  })
+);
 
 // Middleware untuk parsing JSON
 app.use(express.json());
