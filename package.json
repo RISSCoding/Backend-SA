@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"},
+    "schema": "prisma/schema.prisma"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,15 +17,19 @@
   "dependencies": {
     "@prisma/client": "^5.19.0",
     "bcrypt": "^5.1.1",
+    "date-fns": "^4.1.0",
     "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^9.9.0",
     "eslint-plugin-vue": "^9.27.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "prisma": "^5.18.0"
+    "prisma": "^5.19.1"
   },
+
   "type": "module"
 }

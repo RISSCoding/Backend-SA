@@ -5,13 +5,17 @@ export const getAllAccounts = async () => {
   return await accountRepo.getAllAccounts();
 };
 
+
 export const createAccount = async (accountData) => {
-  try {
-    const newAccount = await accountRepo.createAccount(accountData);
-    return newAccount;
-  } catch (error) {
-    throw error;
-  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(accountData.password, salt);
+
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
+  };
+
+  return await accountRepo.create(newAccount);
 };
 
 export const getAccountById = async (id) => {
@@ -23,6 +27,15 @@ export const getAccountById = async (id) => {
   }
 };
 
+export const updateAccount = async (id, updateData) => {
+  try {
+    return await accountRepo.updateAccount(id, updateData);
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export const verifyAccount = async (email, password) => {
   const account = await accountRepo.getAccountByEmail(email);
   if (account && await bcrypt.compare(password, account.password)) {
@@ -30,4 +43,21 @@ export const verifyAccount = async (email, password) => {
     return accountWithoutPassword;
   }
   return null;
+};
+
+export const getPendingAccounts = async () => {
+  try {
+    const accounts = await accountRepo.getPendingAccounts();
+    return accounts;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteAccount = async (id) => {
+  try {
+    return await accountRepo.deleteAccount(id);
+  } catch (error) {
+    throw error;
+  }
 };

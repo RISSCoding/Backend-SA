@@ -1,5 +1,4 @@
-// notificationRepo.js
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 class NotificationRepo {
@@ -39,4 +38,21 @@ class NotificationRepo {
   }
 }
 
-module.exports = NotificationRepo;
+export default NotificationRepo;
+
+export const createNotification = async ({ userId, message, type }) => {
+  return await prisma.notification.create({
+    data: {
+      userId,
+      message,
+      type,
+    },
+  });
+};
+
+export const getNotificationsByUserId = async (userId) => {
+  return prisma.notification.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
+};

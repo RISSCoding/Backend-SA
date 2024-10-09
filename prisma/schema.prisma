@@ -12,16 +12,49 @@ enum Role {
   ADMIN
 }
 
+enum LeaveType {
+  PERMISSION
+  SICK
+  HOLIDAY
+  OFFICEDUTY
+  WFH
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PresenceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
 model Account {
-  userID      Int     @id @default(autoincrement())
+  userID      Int      @id @default(autoincrement())
   name        String
-  phone       String
-  position    String
-  email       String  @unique
+  email       String   @unique
   password    String
-  role        Role    @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  phone       String?  
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  presences   Presence[] 
+  notifications Notification[]
+  leaverequest  LeaveRequest[]
+}
+
+model Presence {
+  id              Int      @id @default(autoincrement())
+  checkInTime     DateTime?
+  checkOutTime    DateTime? 
+  checkInLocation String?
+  checkOutLocation String? 
+  status          PresenceStatus @default(PRESENT)
+  userID          Int
+  Account         Account  @relation(fields: [userID], references: [userID])
 }
 
 model Schedule {
@@ -29,21 +62,19 @@ model Schedule {
   date      DateTime
   startTime DateTime
   endTime   DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
-model Presence {
-  id              Int      @id @default(autoincrement())
-  checkInTime     DateTime?
-  checkOutTime    DateTime?
-  checkInPhoto    String?
-  checkOutPhoto   String?
-  checkInLocation String?  // Lokasi check-in (misalnya "Latitude, Longitude")
-  checkOutLocation String? // Lokasi check-out (misalnya "Latitude, Longitude")
-  status          String   @default("Present")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model LeaveRequest {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        Account     @relation(fields: [userId], references: [userID])
+  type        LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  reason      String
+  status      LeaveStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 enum NotificationType {
@@ -59,5 +90,7 @@ model Notification {
   read            Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  accountID       Int      // Foreign key untuk Account (pengguna)
+  userID          Int
+  Account          Account  @relation(fields: [userID], references: [userID])
 }
+
