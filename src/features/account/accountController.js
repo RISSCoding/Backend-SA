@@ -25,10 +25,8 @@ export const createAccount = async (req, res) => {
     password,
     phone: null,
     position: null,
-    division: null,
     facePhoto: null,
     division: null, 
-
     isApproved: false,
   };
 
@@ -62,9 +60,12 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const account = await accountService.verifyAccount(email, password);
 
+    if (!account) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
     if (!account.isApproved) {
       return res.status(403).json({ message: "Account not approved by admin" });
-
     }
 
     if (account) {
@@ -76,7 +77,7 @@ export const login = async (req, res) => {
       );
       res.json({ token }); // Token dikirimkan kembali ke client
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: error.message });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -103,16 +104,34 @@ export const editAccount = async (req, res) => {
 
 
 export const approveAccount = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    await accountService.approveAccountById(id);
-    return res.status(200).json({ message: "Account approved successfully" });
+    const { id } = req.params;
+
+    const userIdInt = parseInt(id, 10);
+
+    if (isNaN(userIdInt)) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
+    const account = await accountService.getAccountById(userIdInt);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    // Perbarui status isApproved menjadi true
+    const updatedAccount = await accountService.updateAccount(userIdInt, {
+      isApproved: true,
+    });
+
+    return res.status(200).json({
+      message: "Account approved successfully",
+      updatedAccount,
+    });
   } catch (error) {
-    console.error("Error in approveAccount:", error);
+    console.error("Error approving account:", error);
     return res
       .status(500)
-      .json({ message: "Error approving account", error: error.message });
+      .json({ error: "An error occurred while approving the account" });
   }
 };
 

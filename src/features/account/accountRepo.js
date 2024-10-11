@@ -33,12 +33,12 @@ export const create = async (accountData) => {
       data: {
         name: accountData.name,
         email: accountData.email,
-        password: hashedPassword, // Store the hashed password
+        password: accountData.password, 
         phone: accountData.phone || "",
         position: null,
         facePhoto: null,
         role: accountData.role || "USER",
-        division: accountData.division || "", // Add division
+        division: accountData.division || "", 
         isApproved: false,
       },
     });
@@ -74,6 +74,7 @@ export const getAccountByEmail = async (email) => {
     const account = await prisma.account.findUnique({
       where: { email: email },
     });
+    console.log("Account found:", account); // Debugging
     if (!account) {
       throw new Error("Account not found");
     }
@@ -83,6 +84,7 @@ export const getAccountByEmail = async (email) => {
     throw new Error("Error fetching account by email");
   }
 };
+
 
 export const updateAccount = async (id, updateData) => {
   try {

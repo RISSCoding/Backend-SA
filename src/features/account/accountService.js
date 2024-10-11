@@ -5,17 +5,19 @@
     return await accountRepo.getAllAccounts();
   };
 
-  export const createAccount = async (accountData) => {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(accountData.password, salt);
+export const createAccount = async (accountData) => {
+  const hashedPassword = await bcrypt.hash(accountData.password, 10); // 10 adalah saltRounds default
 
-    const newAccount = {
-      ...accountData,
-      password: hashedPassword,
-    };
+  console.log("Hashed password on account creation:", hashedPassword); // Debugging hash password
 
-    return await accountRepo.create(newAccount);
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
   };
+
+  return await accountRepo.create(newAccount);
+};
+
 
   export const getAccountById = async (id) => {
     try {
@@ -36,14 +38,25 @@
   };
 
 
-  export const verifyAccount = async (email, password) => {
-    const account = await accountRepo.getAccountByEmail(email);
-    if (account && (await bcrypt.compare(password, account.password))) {
+export const verifyAccount = async (email, password) => {
+  const account = await accountRepo.getAccountByEmail(email);
+
+  if (account) {
+    console.log("Account found for verification:", account);
+
+    const isPasswordValid = await bcrypt.compare(password, account.password); // Password plain-text dibandingkan dengan hash yang ada
+
+    console.log("Password valid:", isPasswordValid); // Debugging hasil perbandingan password
+
+    if (isPasswordValid) {
       const { password, ...accountWithoutPassword } = account;
       return accountWithoutPassword;
     }
-    return null;
-  };
+  }
+  return null;
+};
+
+
 
 export const fetchPendingAccounts = async () => {
   try {
