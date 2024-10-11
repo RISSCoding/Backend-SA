@@ -97,7 +97,7 @@ export const updateAccount = async (id, updateData) => {
         isApproved:
           updateData.isApproved !== undefined
             ? updateData.isApproved
-            : undefined, // Ensure to update isApproved
+            : undefined,
       },
     });
   } catch (error) {

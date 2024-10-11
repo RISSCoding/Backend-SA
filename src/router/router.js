@@ -16,12 +16,12 @@ const router = express.Router();
 router.post("/login", accountController.login);
 router.get("/accounts", accountController.getAllAccounts);
 router.post("/accounts", accountController.createAccount);
-router.get("/accounts/:id",authenticateToken,accountController.getAccountById);
-router.put("/account/edit", authenticateToken, accountController.editAccount);
-router.get("/accounts/pending",authenticateToken,isAdmin,accountController.getPendingAccounts);
-
+router.get("/accounts/:id",accountController.getAccountById);
+router.put("/account/edit", accountController.editAccount);
+router.get("/accounts/pending",accountController.getPendingAccounts);
 router.get("/pending", accountController.getPendingAccounts);
-router.patch("/:userId", accountController.approveRejectAccount);
+router.put("/accounts/:id/approve",accountController.approveAccount);
+router.put("/accounts/:id/reject",accountController.rejectAccount);
 
 // Schedule routes
 router.get("/schedules", authenticateToken, scheduleController.getAllSchedules);
@@ -30,21 +30,24 @@ router.put("/schedules/:id",authenticateToken,isAdmin,scheduleController.updateS
 router.delete("/schedules/:id",authenticateToken,isAdmin,scheduleController.deleteSchedule);
 
 // Presence routes
-router.post("/presence", authenticateToken, presenceController.recordPresence);
+// router.post("/presence", authenticateToken, presenceController.recordPresence);
 
 // // Leave routes
-router.put("/leave/:leaveId/approve",authenticateToken,isAdmin,leaveController.approveLeaveRequest);
-router.put("/leave/:leaveId/reject",authenticateToken,isAdmin,leaveController.rejectLeaveRequest);
+router.put("/leave/:leaveId/approve",leaveController.approveLeaveRequest);
+router.put("/leave/:leaveId/reject",leaveController.rejectLeaveRequest);
 
 // // Notification routes
 router.get("/notifications",authenticateToken,notificationController.getNotifications);
 
 // // Stats routes
-// router.get('/presence/statistics', authenticateToken, presenceController.getDailyStatistics);
+router.get('/presence/statistics', presenceController.getDailyStatistics);
+router.get("/presence/monthly-statistics",presenceController.getMonthlyStatistics);
+
 // router.get('/presence/stats', authenticateToken, presenceController.getPresenceStats);
-// router.get('/leave/stats', authenticateToken, leaveController.getLeaveStats);
-// router.get('/leave/stats/:type', authenticateToken, leaveController.getLeaveStatsByType);
-router.get("/stats/combined",authenticateToken,statsController.getCombinedStats)
+// router.get('/leave/stats', authenticateToken, statsController.getLeaveStats);
+// router.get('/leave/stats/:type', authenticateToken, statsController.getLeaveStatsByType);
+router.get("/stats/combined/:year/:month",statsController.getCombinedStats
+);
 
 export default router;
 

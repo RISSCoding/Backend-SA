@@ -56,3 +56,26 @@ export const updateLeaveStatus = async (leaveId, status, adminId) => {
   return leaveRequest;
 };
 
+export const getLeaveStatsByDateRange = async (startDate, endDate) => {
+  // Hitung jumlah cuti berdasarkan leaveType dalam rentang tanggal
+  const leave = await prisma.leave.groupBy({
+    by: ["leaveType"], // Berdasarkan kolom leaveType
+    where: {
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  // Format output
+  const result = leave.reduce((acc, curr) => {
+    acc[curr.leaveType] = curr._count._all;
+    return acc;
+  }, {});
+
+  return result;
+};
