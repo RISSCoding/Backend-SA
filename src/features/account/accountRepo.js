@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-
 const saltRounds = 10;
 
 export const getAllAccounts = async () => {
@@ -33,12 +32,12 @@ export const create = async (accountData) => {
       data: {
         name: accountData.name,
         email: accountData.email,
-        password: hashedPassword, // Store the hashed password
+        password: accountData.password, 
         phone: accountData.phone || "",
         position: null,
         facePhoto: null,
         role: accountData.role || "USER",
-        division: accountData.division || "", // Add division
+        division: accountData.division || "",
         isApproved: false,
       },
     });
@@ -74,6 +73,7 @@ export const getAccountByEmail = async (email) => {
     const account = await prisma.account.findUnique({
       where: { email: email },
     });
+    console.log("Account found:", account); // Debugging
     if (!account) {
       throw new Error("Account not found");
     }
@@ -83,6 +83,7 @@ export const getAccountByEmail = async (email) => {
     throw new Error("Error fetching account by email");
   }
 };
+
 
 export const updateAccount = async (id, updateData) => {
   try {
@@ -97,7 +98,7 @@ export const updateAccount = async (id, updateData) => {
         isApproved:
           updateData.isApproved !== undefined
             ? updateData.isApproved
-            : undefined, // Ensure to update isApproved
+            : undefined,
       },
     });
   } catch (error) {
@@ -105,6 +106,7 @@ export const updateAccount = async (id, updateData) => {
     throw new Error("Error updating account: " + error.message);
   }
 };
+
 
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({
@@ -117,7 +119,6 @@ export const getPendingAccounts = async () => {
     },
   });
 };
-
 
 export const approveAccount = async (userId) => {
   return prisma.account.update({
@@ -141,3 +142,4 @@ export const deleteAccount = async (id) => {
     throw new Error("Error deleting account");
   }
 };
+
