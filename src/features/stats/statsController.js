@@ -1,5 +1,6 @@
 // src/features/stats/statsController.js
 
+
 import * as statsService from "./statsService.js";
 
 export const getCombinedStats = async (req, res) => {
@@ -8,6 +9,7 @@ export const getCombinedStats = async (req, res) => {
     const stats = await statsService.getCombinedStats(year, month);
 
     res.status(200).json(stats);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

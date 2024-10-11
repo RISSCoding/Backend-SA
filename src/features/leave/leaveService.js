@@ -26,6 +26,7 @@ export const getLeaveRequestById = async (leaveId) => {
   });
 };
 
+
 export const createNotification = async (userId, message, type) => {
   return await prisma.notification.create({
     data: {
@@ -79,3 +80,4 @@ export const getLeaveStatsByDateRange = async (startDate, endDate) => {
 
   return result;
 };
+

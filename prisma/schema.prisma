@@ -43,6 +43,7 @@ model Account {
   email       String   @unique
   password    String
   phone       String?  
+
   position    String?
   division    String?
   facePhoto   String?
@@ -89,6 +90,7 @@ model LeaveRequest {
   updatedAt   DateTime    @updatedAt
 }
 
+
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -98,4 +100,3 @@ model Notification {
   Account   Account  @relation(fields: [userId], references: [userID])
   createdAt DateTime @default(now())
 }
-

@@ -1,3 +1,4 @@
+
 // src/features/presence/presenceRepo.js
 
 import { PrismaClient } from "@prisma/client";
@@ -79,4 +80,5 @@ export const updatePresence = async (presenceID, updateData) => {
     where: { id: presenceID },
     data: updateData,
   });
+
 };

@@ -1,3 +1,4 @@
+
 // src/features/presence/presenceService.js
 import * as presenceRepo from "./presenceRepo.js";
 
@@ -30,4 +31,5 @@ export const getMonthlyStatistics = async (year, month) => {
   }
 
   return statistics;
+
 };

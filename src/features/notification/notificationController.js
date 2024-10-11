@@ -1,3 +1,4 @@
+
 import * as notificationRepo from './notificationRepo.js';
 
 export const getNotifications = async (req, res) => {
@@ -11,4 +12,5 @@ export const getNotifications = async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve notifications' });
   }
 };
+
 
