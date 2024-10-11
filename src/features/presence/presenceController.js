@@ -37,7 +37,7 @@ export const checkLocation = (lat, long) => {
 };
 
 export const handleCheckIn = async (req, res) => {
-  const { userID, lat, long, checkInPhoto } = req.body;
+  const { userID, lat, long } = req.body;
 
   // Verifikasi lokasi check-in
   if (!checkLocation(lat, long)) {

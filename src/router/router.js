@@ -31,7 +31,7 @@ router.put("/schedules/:id",authenticateToken,isAdmin,scheduleController.updateS
 router.delete("/schedules/:id",authenticateToken,isAdmin,scheduleController.deleteSchedule);
 
 // Presence routes
-// router.post("/presence", authenticateToken, presenceController.recordPresence);
+router.post("/presence", authenticateToken, presenceController.handleCheckIn);
 
 // // Leave routes
 router.put("/leave/:leaveId/approve",leaveController.approveLeaveRequest);

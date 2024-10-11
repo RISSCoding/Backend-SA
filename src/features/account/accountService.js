@@ -1,9 +1,9 @@
-  import bcrypt from "bcrypt";
-  import * as accountRepo from "./accountRepo.js";
+import bcrypt from "bcrypt";
+import * as accountRepo from "./accountRepo.js";
 
-  export const getAllAccounts = async () => {
-    return await accountRepo.getAllAccounts();
-  };
+export const getAllAccounts = async () => {
+  return await accountRepo.getAllAccounts();
+};
 
 export const createAccount = async (accountData) => {
   const hashedPassword = await bcrypt.hash(accountData.password, 10); // 10 adalah saltRounds default
@@ -44,9 +44,8 @@ export const verifyAccount = async (email, password) => {
   if (account) {
     console.log("Account found for verification:", account);
 
-    const isPasswordValid = await bcrypt.compare(password, account.password); // Password plain-text dibandingkan dengan hash yang ada
-
-    console.log("Password valid:", isPasswordValid); // Debugging hasil perbandingan password
+    const isPasswordValid = await bcrypt.compare(password, account.password);
+    console.log("Password valid:", isPasswordValid); 
 
     if (isPasswordValid) {
       const { password, ...accountWithoutPassword } = account;
@@ -55,8 +54,6 @@ export const verifyAccount = async (email, password) => {
   }
   return null;
 };
-
-
 
 export const fetchPendingAccounts = async () => {
   try {
@@ -69,8 +66,6 @@ export const fetchPendingAccounts = async () => {
   }
 };
 
-
-
 export const approveAccountById = async (userId) => {
   return await accountRepo.approveAccount(userId);
 };
@@ -79,12 +74,11 @@ export const rejectAccountById = async (userId) => {
   return await accountRepo.rejectAccount(userId);
 };
 
-
-  export const deleteAccount = async (id) => {
-    try {
-      return await accountRepo.deleteAccount(id);
-    } catch (error) {
-      throw error;
-    }
-  };
+export const deleteAccount = async (id) => {
+  try {
+    return await accountRepo.deleteAccount(id);
+  } catch (error) {
+    throw error;
+  }
+};
 

@@ -139,7 +139,7 @@ export const rejectAccount = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await accountService.deleteAccount(id);
+    await accountService.rejectAccountById(id);
     return res
       .status(200)
       .json({ message: "Account rejected and deleted successfully" });

@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-
 const saltRounds = 10;
 
 export const getAllAccounts = async () => {
@@ -38,7 +37,7 @@ export const create = async (accountData) => {
         position: null,
         facePhoto: null,
         role: accountData.role || "USER",
-        division: accountData.division || "", 
+        division: accountData.division || "",
         isApproved: false,
       },
     });
@@ -120,7 +119,6 @@ export const getPendingAccounts = async () => {
     },
   });
 };
-
 
 export const approveAccount = async (userId) => {
   return prisma.account.update({
