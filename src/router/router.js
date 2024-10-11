@@ -1,3 +1,4 @@
+
 import express from "express";
 import * as accountController from "../features/account/accountController.js";
 import * as scheduleController from "../features/schedule/scheduleController.js";
@@ -7,6 +8,7 @@ import * as statsController from "../features/stats/statsController.js";
 import * as notificationController from "../features/notification/notificationController.js";
 import { isAdmin } from "../middleware/roleMiddleware.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
@@ -43,6 +45,6 @@ router.get("/notifications",authenticateToken,notificationController.getNotifica
 // router.get('/leave/stats', authenticateToken, leaveController.getLeaveStats);
 // router.get('/leave/stats/:type', authenticateToken, leaveController.getLeaveStatsByType);
 router.get("/stats/combined",authenticateToken,statsController.getCombinedStats
-);
 
 export default router;
+
