@@ -43,23 +43,17 @@ model Account {
   email       String   @unique
   password    String
   phone       String?  
-  role        Role     @default(USER)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  position    String?
+  division    String?
+  facePhoto   String?
+  role        String   @default("USER")
+  isApproved  Boolean  @default(false)   
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   presences   Presence[] 
   notifications Notification[]
   leaverequest  LeaveRequest[]
-}
-
-model Presence {
-  id              Int      @id @default(autoincrement())
-  checkInTime     DateTime?
-  checkOutTime    DateTime? 
-  checkInLocation String?
-  checkOutLocation String? 
-  status          PresenceStatus @default(PRESENT)
-  userID          Int
-  Account         Account  @relation(fields: [userID], references: [userID])
 }
 
 model Schedule {
@@ -67,6 +61,20 @@ model Schedule {
   date      DateTime
   startTime DateTime
   endTime   DateTime
+}
+
+
+model Presence {
+  id               Int      @id @default(autoincrement())
+  userId         Int
+  checkInTime     DateTime
+  checkInLocation String
+  checkOutTime    DateTime?
+  checkOutLocation String?
+  status          String
+  user            Account  @relation(fields: [userId], references: [userID])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model LeaveRequest {
@@ -81,6 +89,7 @@ model LeaveRequest {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
+
 
 model Notification {
   id        Int      @id @default(autoincrement())

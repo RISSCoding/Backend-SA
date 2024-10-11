@@ -1,8 +1,7 @@
-How to push:
+ENV EXAMPLE:
 <br>
-<p> 1. git add .
+DATABASE_URL="mysql://root:@localhost:3306/databasename"
 <br>
-2. git commit -m "message status"
+PORT=3000
 <br>
-3. git push -u origin (your branches)
-</p>
+JWT_SECRET=24578563
