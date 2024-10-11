@@ -1,3 +1,4 @@
+
 import jwt from "jsonwebtoken";
 import config from "../../config/config.js";
 import * as accountService from "./accountService.js";
@@ -27,6 +28,7 @@ export const createAccount = async (req, res) => {
     division: null,
     facePhoto: null,
     division: null, 
+
     isApproved: false,
   };
 
@@ -62,6 +64,7 @@ export const login = async (req, res) => {
 
     if (!account.isApproved) {
       return res.status(403).json({ message: "Account not approved by admin" });
+
     }
 
     if (account) {
@@ -80,9 +83,6 @@ export const login = async (req, res) => {
   }
 };
 
-
-
-
 export const editAccount = async (req, res) => {
   const { userID } = req.user; // Ambil userID dari token JWT
   const updateData = req.body; // Data yang ingin diupdate
@@ -100,6 +100,7 @@ export const editAccount = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 export const approveAccount = async (req, res) => {
   const { id } = req.params;
@@ -150,3 +151,5 @@ export const getPendingAccounts = async (req, res) => {
 
 
 
+
+ 

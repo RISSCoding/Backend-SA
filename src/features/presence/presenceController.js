@@ -1,5 +1,6 @@
 import * as presenceService from "./presenceService.js";
 
+
 export const getDailyStatistics = async (req, res) => {
   const { date } = req.query; // Ambil tanggal dari query params
   if (!date) {
@@ -66,4 +67,5 @@ export const handleCheckIn = async (req, res) => {
   const presence = await presenceService.createPresence(userID, presenceData);
 
   return res.status(200).json({ message: "Check-in successful", presence });
+
 };

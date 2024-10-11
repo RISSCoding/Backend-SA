@@ -1,5 +1,6 @@
 // src/features/stats/statsService.js
 
+
 import * as presenceService from "../presence/presenceService.js";
 import * as leaveService from "../leave/leaveService.js";
 import dayjs from "dayjs";
@@ -21,5 +22,6 @@ export const getCombinedStats = async (year, month) => {
   return {
     presenceStats,
     leaveStats,
+
   };
 };

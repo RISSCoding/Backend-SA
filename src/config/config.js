@@ -1,5 +1,6 @@
 const config = {
   PORT: process.env.PORT || 3000,
+
   JWT_SECRET: process.env.JWT_SECRET || "24578563",
   DATABASE_URL: process.env.DATABASE_URL,
   OFFICE_LATITUDE: -6.9418,

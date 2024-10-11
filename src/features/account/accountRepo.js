@@ -106,6 +106,7 @@ export const updateAccount = async (id, updateData) => {
   }
 };
 
+
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({
     where: { isApproved: false },
@@ -141,3 +142,4 @@ export const deleteAccount = async (id) => {
     throw new Error("Error deleting account");
   }
 };
+

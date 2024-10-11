@@ -26,6 +26,7 @@
     }
   };
 
+
   export const updateAccount = async (id, updateData) => {
     try {
       return await accountRepo.updateAccount(id, updateData);
@@ -48,11 +49,13 @@ export const fetchPendingAccounts = async () => {
   try {
     const accounts = await accountRepo.getPendingAccounts();
     return accounts;
+
   } catch (error) {
     console.error("Error in fetchPendingAccounts service:", error);
     throw error;
   }
 };
+
 
 
 export const approveAccountById = async (userId) => {
@@ -71,3 +74,4 @@ export const rejectAccountById = async (userId) => {
       throw error;
     }
   };
+
