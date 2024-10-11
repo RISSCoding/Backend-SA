@@ -1,8 +1,10 @@
-
-import bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
+import bcrypt from "bcrypt";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+
+const saltRounds = 10;
 
 export const getAllAccounts = async () => {
   try {
@@ -12,31 +14,38 @@ export const getAllAccounts = async () => {
         name: true,
         email: true,
         role: true,
+        createdAt: true,
       },
     });
   } catch (error) {
-    console.error('Error fetching all accounts:', error);
-    throw new Error('Error fetching all accounts');
+    console.error("Error fetching all accounts:", error);
+    throw new Error("Error fetching all accounts");
   }
 };
 
-export const createAccount = async (accountData) => {
+export const create = async (accountData) => {
   try {
-    const hashedPassword = await bcrypt.hash(accountData.password, 10);
+    // Hash the password before storing it
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash(accountData.password, saltRounds);
+
     const newAccount = await prisma.account.create({
       data: {
         name: accountData.name,
-        phone: accountData.phone,
-        position: accountData.position,
         email: accountData.email,
-        password: hashedPassword,
-        role: accountData.role || 'USER',
+        password: hashedPassword, // Store the hashed password
+        phone: accountData.phone || "",
+        position: null,
+        facePhoto: null,
+        role: accountData.role || "USER",
+        division: accountData.division || "", // Add division
+        isApproved: false,
       },
     });
-    const { password, ...accountWithoutPassword } = newAccount;
-    return accountWithoutPassword;
+    return newAccount;
   } catch (error) {
-    throw new Error('Error creating account');
+    console.error("Error creating account:", error);
+    throw new Error("Error creating account: " + error.message);
   }
 };
 
@@ -48,14 +57,15 @@ export const getAccountById = async (id) => {
         userID: true,
         name: true,
         phone: true,
+        password: true,
         position: true,
+        division: true,
         email: true,
-        role: true,
-      }
+      },
     });
     return account;
   } catch (error) {
-    throw new Error('Error fetching account');
+    throw new Error("Error fetching account");
   }
 };
 
@@ -65,11 +75,69 @@ export const getAccountByEmail = async (email) => {
       where: { email: email },
     });
     if (!account) {
-      throw new Error('Account not found');
+      throw new Error("Account not found");
     }
     return account;
   } catch (error) {
-    console.error('Error fetching account by email:', error);
-    throw new Error('Error fetching account by email');
+    console.error("Error fetching account by email:", error);
+    throw new Error("Error fetching account by email");
+  }
+};
+
+export const updateAccount = async (id, updateData) => {
+  try {
+    return await prisma.account.update({
+      where: { userID: id },
+      data: {
+        name: updateData.name || undefined,
+        phone: updateData.phone || undefined,
+        position: updateData.position || undefined,
+        division: updateData.division || undefined,
+        facePhoto: updateData.facePhoto || undefined,
+        isApproved:
+          updateData.isApproved !== undefined
+            ? updateData.isApproved
+            : undefined, // Ensure to update isApproved
+      },
+    });
+  } catch (error) {
+    console.error("Prisma error:", error);
+    throw new Error("Error updating account: " + error.message);
+  }
+};
+
+export const getPendingAccounts = async () => {
+  return prisma.account.findMany({
+    where: { isApproved: false },
+    select: {
+      userID: true,
+      name: true,
+      email: true,
+      password: true, // Include password in the selection
+    },
+  });
+};
+
+
+export const approveAccount = async (userId) => {
+  return prisma.account.update({
+    where: { userID: parseInt(userId) },
+    data: { isApproved: true },
+  });
+};
+
+export const rejectAccount = async (userId) => {
+  return prisma.account.delete({
+    where: { userID: parseInt(userId) },
+  });
+};
+
+export const deleteAccount = async (id) => {
+  try {
+    return await prisma.account.delete({
+      where: { userID: id },
+    });
+  } catch (error) {
+    throw new Error("Error deleting account");
   }
 };

@@ -12,27 +12,47 @@ enum Role {
   ADMIN
 }
 
-model Account {
-  userID      Int     @id @default(autoincrement())
-  name        String
-  phone       String
-  position    String
-  email       String  @unique
-  password    String
-  role        Role    @default(USER)
-  faceData    String? // Menyimpan data wajah sebagai string (bisa berupa URL gambar atau data base64)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  presences Presence[]
+enum LeaveType {
+  PERMISSION
+  SICK
+  HOLIDAY
+  OFFICEDUTY
+  WFH
 }
 
-model Presence {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  latitude  Float
-  longitude Float
-  timestamp DateTime @default(now())
-  user      Account  @relation(fields: [userId], references: [userID])
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  LEAVE_APPROVAL
+  PRESENCE_DELAY
+}
+
+enum PresenceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+
+model Account {
+  userID      Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  password    String
+  phone       String?  
+  position    String?
+  division    String?
+  facePhoto   String?
+  role        String   @default("USER")
+  isApproved  Boolean  @default(false)   
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  presences   Presence[] 
+  notifications Notification[]
+  leaverequest  LeaveRequest[]
 }
 
 model Schedule {
@@ -40,7 +60,42 @@ model Schedule {
   date      DateTime
   startTime DateTime
   endTime   DateTime
+}
+
+
+model Presence {
+  id               Int      @id @default(autoincrement())
+  userId         Int
+  checkInTime     DateTime
+  checkInLocation String
+  checkOutTime    DateTime?
+  checkOutLocation String?
+  status          String
+  user            Account  @relation(fields: [userId], references: [userID])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        Account     @relation(fields: [userId], references: [userID])
+  type        LeaveType
+  startDate   DateTime
+  endDate     DateTime
+  reason      String
+  status      LeaveStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
+  isRead    Boolean  @default(false)
+  type      NotificationType
+  Account   Account  @relation(fields: [userId], references: [userID])
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
