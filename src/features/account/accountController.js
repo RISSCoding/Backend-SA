@@ -25,7 +25,7 @@ export const createAccount = async (req, res) => {
     phone: null,
     position: null,
     facePhoto: null,
-    division: null, // Division dibiarkan null
+    division: null, 
     isApproved: false,
   };
 
@@ -115,7 +115,6 @@ export const approveAccount = async (req, res) => {
       return res.status(404).json({ message: "Account not found" });
     }
 
-    // Perbarui status isApproved menjadi true
     const updatedAccount = await accountService.updateAccount(userIdInt, {
       isApproved: true,
     });
@@ -131,7 +130,6 @@ export const approveAccount = async (req, res) => {
       .json({ error: "An error occurred while approving the account" });
   }
 };
-
 
 export const getPendingAccounts = async (req, res) => {
   try {

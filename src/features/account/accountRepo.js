@@ -89,7 +89,7 @@ export const updateAccount = async (id, updateData) => {
         isApproved:
           updateData.isApproved !== undefined
             ? updateData.isApproved
-            : undefined, // Pastikan untuk memperbarui isApproved
+            : undefined,
       },
     });
   } catch (error) {

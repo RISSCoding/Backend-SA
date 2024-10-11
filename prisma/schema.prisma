@@ -73,8 +73,8 @@ model Presence {
   checkOutLocation String?
   status          String
   user            Account  @relation(fields: [userId], references: [userID])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 

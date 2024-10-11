@@ -4,15 +4,13 @@ export const recordPresence = async (req, res) => {
   try {
     console.log("Request Body:", req.body);
     const { latitude, longitude, type } = req.body;
-    const userId = req.user.userID; // Pastikan ini mengambil userID
+    const userId = req.user.userID;
 
     if (typeof latitude === "undefined" || typeof longitude === "undefined") {
       return res
         .status(400)
         .json({ error: "latitude or longitude is not defined" });
     }
-    
-    console.log("Extracted userID from token:", userId);
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is missing from token." });
@@ -53,5 +51,3 @@ export const recordPresence = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
-

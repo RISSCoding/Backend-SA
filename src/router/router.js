@@ -12,9 +12,9 @@ const router = express.Router();
 
 // Account routes
 router.post("/login", accountController.login);
-router.get("/accounts", authenticateToken, accountController.getAllAccounts);
+router.get("/accounts", accountController.getAllAccounts);
 router.post("/accounts", accountController.createAccount);
-router.get("/accounts/:id",authenticateToken,accountController.getAccountById);
+router.get("/accounts/:id",accountController.getAccountById);
 router.put("/accounts/:id/approve",authenticateToken,isAdmin,accountController.approveAccount);
 router.put("/accounts/:id/reject",authenticateToken,isAdmin,accountController.rejectAccount);
 router.put("/account/edit", authenticateToken, accountController.editAccount);
