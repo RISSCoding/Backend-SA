@@ -1,3 +1,4 @@
+
 import express from "express";
 import * as accountController from "../features/account/accountController.js";
 import * as scheduleController from "../features/schedule/scheduleController.js";
@@ -8,17 +9,19 @@ import * as notificationController from "../features/notification/notificationCo
 import { isAdmin } from "../middleware/roleMiddleware.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
+
 const router = express.Router();
 
 // Account routes
 router.post("/login", accountController.login);
 router.get("/accounts", accountController.getAllAccounts);
 router.post("/accounts", accountController.createAccount);
-router.get("/accounts/:id",accountController.getAccountById);
-router.put("/accounts/:id/approve",authenticateToken,isAdmin,accountController.approveAccount);
-router.put("/accounts/:id/reject",authenticateToken,isAdmin,accountController.rejectAccount);
+router.get("/accounts/:id",authenticateToken,accountController.getAccountById);
 router.put("/account/edit", authenticateToken, accountController.editAccount);
 router.get("/accounts/pending",authenticateToken,isAdmin,accountController.getPendingAccounts);
+
+router.get("/pending", accountController.getPendingAccounts);
+router.patch("/:userId", accountController.approveRejectAccount);
 
 // Schedule routes
 router.get("/schedules", authenticateToken, scheduleController.getAllSchedules);
@@ -41,7 +44,7 @@ router.get("/notifications",authenticateToken,notificationController.getNotifica
 // router.get('/presence/stats', authenticateToken, presenceController.getPresenceStats);
 // router.get('/leave/stats', authenticateToken, leaveController.getLeaveStats);
 // router.get('/leave/stats/:type', authenticateToken, leaveController.getLeaveStatsByType);
-router.get("/stats/combined",authenticateToken,statsController.getCombinedStats
-);
+router.get("/stats/combined",authenticateToken,statsController.getCombinedStats)
 
 export default router;
+
