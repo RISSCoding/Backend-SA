@@ -27,7 +27,7 @@ jobs:
       run: |
         rsync -avz --delete --exclude '.env' -e "ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }}" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/staging/smart-att
 
-    - name: Install Dependencies and Run Prisma Migrations
+    - name: Install Dependencies and Check Prisma Migrate Status
       run: |
         ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           # Set the Node.js version to 20.x if it's not already set
@@ -35,20 +35,23 @@ jobs:
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # Load NVM
           nvm install 20
           nvm use 20
-
           # Verify Node.js version
           node -v
-
           # Install PM2 if not already installed
           npm install -g pm2
-
           # Go to the app directory
           cd /home/ubuntu/staging/smart-att
-
           # Install dependencies
           npm install
+          # Check Prisma Migrate Status for debugging
+          npx prisma migrate status
+        EOF
 
+    - name: Run Prisma Migrations
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Go to the app directory
+          cd /home/ubuntu/staging/mesan
           # Run Prisma Migrations
           npx prisma migrate deploy
-
         EOF
