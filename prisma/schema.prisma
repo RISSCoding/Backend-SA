@@ -38,23 +38,28 @@ enum PresenceStatus {
 }
 
 model Account {
-  userID      Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  phone       String?  
-
-  position    String?
-  division    String?
-  facePhoto   String?
-  role        String   @default("USER")
-  isApproved  Boolean  @default(false)   
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  presences   Presence[] 
-  notifications Notification[]
-  leaverequest  LeaveRequest[]
+  userID          Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password        String
+  phone           String?
+  adress          String?
+  yearscareer     String?
+  position        String?
+  division        String?
+  facePhoto       String?
+  role            String           @default("ADMIN")
+  isApproved      Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  presences       Presence[]
+  notifications   Notification[]
+  leaverequest    LeaveRequest[]
+  leaveBalance    Int              @default(12) // Default 12 days per year
+  lastReset       DateTime         @default(now()) // Waktu terakhir reset cuti
+  carryOver       Int              @default(0) // Menyimpan sisa cuti tahun lalu yang dibawa ke tahun ini
 }
+
 
 model Schedule {
   id        Int      @id @default(autoincrement())
