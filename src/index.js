@@ -8,7 +8,7 @@ const app = express();
 // Middleware untuk CORS
 app.use(
   cors({
-    origin: "http://localhost:3001", // Ganti dengan URL frontend Anda
+    origin: "https://smart-att.curaweda.com/", // Ganti dengan URL frontend Anda
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true, // Jika perlu
   })
