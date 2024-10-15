@@ -36,7 +36,7 @@ export const create = async (accountData) => {
         phone: accountData.phone || "",
         position: null,
         facePhoto: null,
-        role: accountData.role || "ADMIN",
+        role: accountData.role || "USER",
         division: accountData.division || "",
         isApproved: false,
       },
