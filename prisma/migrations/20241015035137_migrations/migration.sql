@@ -1,3 +1,10 @@
+-- Drop Tables if Exist
+DROP TABLE IF EXISTS `Notification`;
+DROP TABLE IF EXISTS `LeaveRequest`;
+DROP TABLE IF EXISTS `Presence`;
+DROP TABLE IF EXISTS `Schedule`;
+DROP TABLE IF EXISTS `Account`;
+
 -- CreateTable
 CREATE TABLE `Account` (
     `userID` INTEGER NOT NULL AUTO_INCREMENT,
