@@ -16,12 +16,16 @@ export const getAllAccounts = async () => {
         isApproved: true,
         createdAt: true,
       },
+      where: {
+        isApproved: true, 
+      },
     });
   } catch (error) {
     console.error("Error fetching all accounts:", error);
     throw new Error("Error fetching all accounts");
   }
 };
+
 
 export const create = async (accountData) => {
   try {
