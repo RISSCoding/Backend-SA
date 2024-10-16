@@ -13,7 +13,6 @@ export const getAllAccounts = async () => {
         name: true,
         email: true,
         role: true,
-        isApproved: true,
         createdAt: true,
       },
       where: {
