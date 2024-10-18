@@ -38,6 +38,25 @@ export const createAccount = async (accountData) => {
   };
 
 
+export const editAccountService = async (userID, updateData) => {
+  try {
+    // Memastikan tidak ada perubahan pada field role
+    if (updateData.role) {
+      throw new Error("Role cannot be modified.");
+    }
+
+    // Panggil fungsi repository untuk memperbarui account
+    const updatedAccount = await updateAccount(userID, updateData);
+
+    return {
+      message: "Account updated successfully",
+      data: updatedAccount,
+    };
+  } catch (error) {
+    throw new Error("Error in editAccountService: " + error.message);
+  }
+};
+
 export const verifyAccount = async (email, password) => {
   const account = await accountRepo.getAccountByEmail(email);
 
