@@ -1,24 +1,23 @@
 import express from "express";
-import cors from "cors"; // Import CORS
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import config from "./config/config.js";
 import router from "./router/router.js";
 
 const app = express();
 
-// Middleware untuk CORS
 app.use(
   cors({
-    origin: "https://smart-att.curaweda.com", // Ganti dengan URL frontend Anda
+    origin: "https://smart-att.curaweda.com", 
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true, // Jika perlu
+    credentials: true, 
   })
 );
 
-// Middleware untuk parsing JSON
+app.use(cookieParser());
+
 app.use(express.json());
 
-
-// Middleware untuk debugging
 app.use((req, res, next) => {
   console.log("Request Method:", req.method);
   console.log("Request Path:", req.path);
@@ -26,11 +25,9 @@ app.use((req, res, next) => {
   console.log("Request Body (raw):", req.body);
   next();
 });
-//sad
 
 app.use("/api", router);
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err);
   res.status(500).json({ error: err.message || "Something went wrong" });

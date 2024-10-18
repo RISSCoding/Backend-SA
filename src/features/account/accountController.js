@@ -69,19 +69,36 @@ export const login = async (req, res) => {
     }
 
     if (account) {
-      // Di sini token dibuat menggunakan userID dan role dari account
       const token = jwt.sign(
-        { userID: account.userID, role: account.role }, // Ini bagian yang penting, userID harus ada di sini
+        { userID: account.userID, role: account.role },
         config.JWT_SECRET,
-        { expiresIn: "1h" } // Token akan berlaku selama 1 jam
+        { expiresIn: "1h" }
       );
-      res.json({ token }); // Token dikirimkan kembali ke client
+
+      res.cookie("token", token, {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === "production", 
+        maxAge: 3600000,
+      });
+
+      res.json({ message: "Login successful" }); 
     } else {
       res.status(401).json({ error: error.message });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+export const logout = (req, res) => {
+  // Hapus cookie yang berisi token JWT
+  res.clearCookie("token", {
+    httpOnly: true, // Pastikan ini sama dengan konfigurasi saat login
+    secure: process.env.NODE_ENV === "production", // Gunakan HTTPS di production
+  });
+
+  // Kirim respon sukses
+  res.json({ message: "Logout successful" });
 };
 
 export const editAccount = async (req, res) => {
@@ -150,7 +167,6 @@ export const rejectAccount = async (req, res) => {
       .json({ message: "Error rejecting account", error: error.message });
   }
 };
-
 
 export const getPendingAccounts = async (req, res) => {
   try {

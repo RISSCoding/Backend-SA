@@ -14,6 +14,7 @@ const router = express.Router();
 // Account routes
 
 router.post("/login", accountController.login);
+router.post("/logout", accountController.logout);
 router.get("/accounts", accountController.getAllAccounts);
 router.post("/accounts", accountController.createAccount);
 router.get("/accounts/:id",accountController.getAccountById);

@@ -4,16 +4,14 @@ import config from '../config/config.js'; // Import konfigurasi untuk mendapatka
 
 
 export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
+  const token = req.cookies.token; 
 
   if (!token) return res.sendStatus(401);
 
   jwt.verify(token, config.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
 
-    req.user = user; // pastikan `userID` disimpan di req.user
+    req.user = user; // Simpan user di req.user
     next();
   });
 };

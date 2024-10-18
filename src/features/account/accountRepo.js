@@ -98,6 +98,8 @@ export const updateAccount = async (id, updateData) => {
         phone: updateData.phone || undefined,
         position: updateData.position || undefined,
         division: updateData.division || undefined,
+        adress: updateData.adress || undefined,
+        leaveBalance: updateData.leaveBalance || undefined,
         facePhoto: updateData.facePhoto || undefined,
         isApproved:
           updateData.isApproved !== undefined
