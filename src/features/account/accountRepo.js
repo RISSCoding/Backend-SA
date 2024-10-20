@@ -139,6 +139,19 @@ export const updateAccount = async (id, updateData) => {
   }
 };
 
+export const updateAccountById = async (userID, updateData) => {
+  try {
+    const updatedAccount = await prisma.account.update({
+      where: { userID: userID },
+      data: updateData, // Data yang diupdate
+    });
+
+    return updatedAccount;
+  } catch (error) {
+    console.error("Error updating account:", error);
+    throw new Error("Error updating account");
+  }
+};
 
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({

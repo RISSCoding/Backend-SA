@@ -55,9 +55,9 @@ model Account {
   presences       Presence[]
   notifications   Notification[]
   leaverequest    LeaveRequest[]
-  leaveBalance    Int              @default(12) // Default 12 days per year
-  lastReset       DateTime         @default(now()) // Waktu terakhir reset cuti
-  carryOver       Int              @default(0) // Menyimpan sisa cuti tahun lalu yang dibawa ke tahun ini
+  leaveBalance    Int              @default(12) 
+  lastReset       DateTime         @default(now()) 
+  carryOver       Int              @default(0)
 }
 
 

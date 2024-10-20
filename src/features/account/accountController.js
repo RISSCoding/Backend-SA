@@ -70,6 +70,22 @@ export const createAdminAccount = async (req, res) => {
   }
 };
 
+export const getMyAccount = async (req, res) => {
+  try {
+    const userID = req.user.userID; 
+
+    const account = await accountService.getAccountDetails(userID); 
+
+    if (!account) {
+      return res.status(404).json({ error: "Account not found" });
+    }
+
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -116,14 +132,24 @@ export const logout = (req, res) => {
 };
 
 export const editAccount = async (req, res) => {
-  const { userID } = req.user;
+  const { userID } = req.params; 
   const updateData = req.body;
 
   try {
-    const updatedAccount = await accountService.updateAccount(
-      userID,
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+
+    const updatedAccount = await accountService.updateAccountbyId(
+      parseInt(userID),
       updateData
     );
+
+    // Jika akun tidak ditemukan
+    if (!updatedAccount) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
     return res.status(200).json({
       message: "Account updated successfully",
       updatedAccount,
@@ -132,6 +158,7 @@ export const editAccount = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 export const approveAccount = async (req, res) => {
@@ -149,7 +176,7 @@ export const approveAccount = async (req, res) => {
       return res.status(404).json({ message: "Account not found" });
     }
 
-    // Perbarui status isApproved menjadi true
+
     const updatedAccount = await accountService.updateAccount(userIdInt, {
       isApproved: true,
     });

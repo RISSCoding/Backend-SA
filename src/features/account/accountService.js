@@ -28,7 +28,7 @@ export const createAdminAccount = async (accountData) => {
     password: hashedPassword,
   };
 
-  return await accountRepo.create(newAccount);
+  return await accountRepo.createAdmin(newAccount);
 };
 
   export const getAccountById = async (id) => {
@@ -49,6 +49,23 @@ export const createAdminAccount = async (accountData) => {
     }
   };
 
+export const updateAccountbyId = async (userID, updateData) => {
+  try {
+    // Cari akun berdasarkan userID
+    const account = await getAccountById(userID);
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    // Update akun dengan data baru
+    const updatedAccount = await accountRepo.updateAccountById(userID, updateData);
+
+    return updatedAccount;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
 
 export const editAccountService = async (userID, updateData) => {
   try {
@@ -84,6 +101,17 @@ export const verifyAccount = async (email, password) => {
     }
   }
   return null;
+};
+
+export const getAccountDetails = async (id) => {
+  try {
+    const account = await getAccountById(id);
+    const { password, ...accountWithoutPassword } = account; // Hilangkan password dari hasil
+
+    return accountWithoutPassword; // Kembalikan data tanpa password
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
 export const fetchPendingAccounts = async () => {
