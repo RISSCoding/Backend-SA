@@ -41,15 +41,46 @@ export const createAccount = async (req, res) => {
   }
 };
 
+export const createAdminAccount = async (req, res) => {
+  const { name, email, password, confirmPassword } = req.body;
 
-export const getAccountById = async (req, res) => {
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  const newAccount = {
+    name,
+    email,
+    password,
+    phone: null,
+    position: null,
+    facePhoto: null,
+    division: null,
+    isApproved: false,
+  };
+
   try {
-    const { id } = req.params;
-    const account = await accountService.getAccountById(parseInt(id));
+    const account = await accountService.createAdminAccount(newAccount);
+    return res.status(201).json({
+      message: "Account created successfully, pending admin approval",
+      account,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getMyAccount = async (req, res) => {
+  try {
+    const userID = req.user.userID; 
+
+    const account = await accountService.getAccountDetails(userID); 
+
     if (!account) {
-      return res.status(404).json({ message: "Account not found" });
+      return res.status(404).json({ error: "Account not found" });
     }
-    res.status(200).json(account);
+
+    res.json(account);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,25 +122,34 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-  // Hapus cookie yang berisi token JWT
   res.clearCookie("token", {
-    httpOnly: true, // Pastikan ini sama dengan konfigurasi saat login
-    secure: process.env.NODE_ENV === "production", // Gunakan HTTPS di production
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
   });
 
-  // Kirim respon sukses
+
   res.json({ message: "Logout successful" });
 };
 
 export const editAccount = async (req, res) => {
-  const { userID } = req.user; // Ambil userID dari token JWT
-  const updateData = req.body; // Data yang ingin diupdate
+  const { userID } = req.params; 
+  const updateData = req.body;
 
   try {
-    const updatedAccount = await accountService.updateAccount(
-      userID,
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+
+    const updatedAccount = await accountService.updateAccountbyId(
+      parseInt(userID),
       updateData
     );
+
+    // Jika akun tidak ditemukan
+    if (!updatedAccount) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
     return res.status(200).json({
       message: "Account updated successfully",
       updatedAccount,
@@ -118,6 +158,7 @@ export const editAccount = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 export const approveAccount = async (req, res) => {
@@ -135,7 +176,7 @@ export const approveAccount = async (req, res) => {
       return res.status(404).json({ message: "Account not found" });
     }
 
-    // Perbarui status isApproved menjadi true
+
     const updatedAccount = await accountService.updateAccount(userIdInt, {
       isApproved: true,
     });
@@ -171,7 +212,7 @@ export const rejectAccount = async (req, res) => {
 export const getPendingAccounts = async (req, res) => {
   try {
     const accounts = await accountService.fetchPendingAccounts();
-    res.status(200).json(accounts); // This now includes passwords
+    res.status(200).json(accounts);
   } catch (error) {
     console.error("Error fetching pending accounts:", error);
     res.status(500).json({
@@ -180,11 +221,3 @@ export const getPendingAccounts = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
- 

@@ -52,6 +52,32 @@ export const create = async (accountData) => {
   }
 };
 
+export const createAdmin = async (accountData) => {
+  try {
+    // Hash the password before storing it
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash(accountData.password, saltRounds);
+
+    const newAccount = await prisma.account.create({
+      data: {
+        name: accountData.name,
+        email: accountData.email,
+        password: accountData.password,
+        phone: accountData.phone || "",
+        position: null,
+        facePhoto: null,
+        role: accountData.role || "ADMIN",
+        division: accountData.division || "",
+        isApproved: false,
+      },
+    });
+    return newAccount;
+  } catch (error) {
+    console.error("Error creating account:", error);
+    throw new Error("Error creating account: " + error.message);
+  }
+};
+
 export const getAccountById = async (id) => {
   try {
     const account = await prisma.account.findUnique({
@@ -113,6 +139,19 @@ export const updateAccount = async (id, updateData) => {
   }
 };
 
+export const updateAccountById = async (userID, updateData) => {
+  try {
+    const updatedAccount = await prisma.account.update({
+      where: { userID: userID },
+      data: updateData, // Data yang diupdate
+    });
+
+    return updatedAccount;
+  } catch (error) {
+    console.error("Error updating account:", error);
+    throw new Error("Error updating account");
+  }
+};
 
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({
