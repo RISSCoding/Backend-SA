@@ -43,10 +43,10 @@ router.get("/notifications",authenticateToken,notificationController.getNotifica
 
 
 // stats routes
-router.get("/statistics/daily",presenceController.getDailyStatistics);
-router.get("/statistics/monthly",presenceController.getMonthlyStatistics);
-router.get("/statistics/yearly",presenceController.getYearlyStatistics
-);
+// router.get("/statistics/daily",presenceController.getDailyStatistics);
+// router.get("/statistics/monthly",presenceController.getMonthlyStatistics);
+// router.get("/statistics/yearly",presenceController.getYearlyStatistics
+// );
 router.get("/stats/combined/:year/:month",statsController.getCombinedStats);
 
 export default router;
