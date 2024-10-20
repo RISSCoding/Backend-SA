@@ -18,6 +18,18 @@ export const createAccount = async (accountData) => {
   return await accountRepo.create(newAccount);
 };
 
+export const createAdminAccount = async (accountData) => {
+  const hashedPassword = await bcrypt.hash(accountData.password, 10); // 10 adalah saltRounds default
+
+  console.log("Hashed password on account creation:", hashedPassword); // Debugging hash password
+
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
+  };
+
+  return await accountRepo.create(newAccount);
+};
 
   export const getAccountById = async (id) => {
     try {
