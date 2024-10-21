@@ -1,3 +1,4 @@
+//repo
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
@@ -113,7 +114,7 @@ export const getPendingAccounts = async () => {
       userID: true,
       name: true,
       email: true,
-      password: true, // Include password in the selection
+      password: true,
     },
   });
 };

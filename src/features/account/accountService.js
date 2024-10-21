@@ -1,3 +1,4 @@
+  //service
   import bcrypt from "bcrypt";
   import * as accountRepo from "./accountRepo.js";
 
@@ -35,14 +36,14 @@
   };
 
 
-  export const verifyAccount = async (email, password) => {
-    const account = await accountRepo.getAccountByEmail(email);
-    if (account && (await bcrypt.compare(password, account.password))) {
-      const { password, ...accountWithoutPassword } = account;
-      return accountWithoutPassword;
-    }
-    return null;
-  };
+export const verifyAccount = async (email, password) => {
+  const account = await accountRepo.getAccountByEmail(email);
+  if (account && (await bcrypt.compare(password, account.password))) {
+    const { password, ...accountWithoutPassword } = account;
+    return accountWithoutPassword;
+  }
+  return null;
+};
 
 export const fetchPendingAccounts = async () => {
   try {

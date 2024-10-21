@@ -1,3 +1,4 @@
+//controller
 import jwt from "jsonwebtoken";
 import config from "../../config/config.js";
 import * as accountService from "./accountService.js";
@@ -60,22 +61,22 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const account = await accountService.verifyAccount(email, password);
 
+    if (!account) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
     if (!account.isApproved) {
       return res.status(403).json({ message: "Account not approved by admin" });
     }
 
-    if (account) {
-      // Di sini token dibuat menggunakan userID dan role dari account
-      const token = jwt.sign(
-        { userID: account.userID, role: account.role }, // Ini bagian yang penting, userID harus ada di sini
-        config.JWT_SECRET,
-        { expiresIn: "1h" } // Token akan berlaku selama 1 jam
-      );
-      res.json({ token }); // Token dikirimkan kembali ke client
-    } else {
-      res.status(401).json({ error: "Invalid credentials" });
-    }
+    const token = jwt.sign(
+      { userID: account.userID, role: account.role },
+      config.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    res.json({ token, userID: account.userID, role: account.role });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ error: error.message });
   }
 };
