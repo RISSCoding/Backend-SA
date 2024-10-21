@@ -15,7 +15,7 @@ const config = {
   // New configurations
   CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3001",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3001",
-  COOKIE_SECRET: process.env.COOKIE_SECRET || "your-cookie-secret",
+  COOKIE_SECRET: process.env.COOKIE_SECRET || "123736761",
   COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || "localhost",
   COOKIE_SECURE: process.env.NODE_ENV === "production",
   COOKIE_SAMESITE: process.env.NODE_ENV === "production" ? "none" : "lax",
