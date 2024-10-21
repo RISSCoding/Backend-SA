@@ -107,14 +107,15 @@ export const login = async (req, res) => {
       );
 
       res.cookie("token", token, {
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === "production", 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 3600000,
       });
 
-      res.json({ message: "Login successful" }); 
+      res.json({ message: "Login successful", role: account.role });
     } else {
-      res.status(401).json({ error: error.message });
+      res.status(401).json({ error: "Invalid credentials" });
     }
   } catch (error) {
     console.error("Login error:", error);
