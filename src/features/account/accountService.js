@@ -1,22 +1,35 @@
-  //service
-  import bcrypt from "bcrypt";
-  import * as accountRepo from "./accountRepo.js";
+import bcrypt from "bcrypt";
+import * as accountRepo from "./accountRepo.js";
 
-  export const getAllAccounts = async () => {
-    return await accountRepo.getAllAccounts();
+export const getAllAccounts = async () => {
+  return await accountRepo.getAllAccounts();
+};
+
+export const createAccount = async (accountData) => {
+  const hashedPassword = await bcrypt.hash(accountData.password, 10); // 10 adalah saltRounds default
+
+  console.log("Hashed password on account creation:", hashedPassword); // Debugging hash password
+
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
   };
 
-  export const createAccount = async (accountData) => {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(accountData.password, salt);
+  return await accountRepo.create(newAccount);
+};
 
-    const newAccount = {
-      ...accountData,
-      password: hashedPassword,
-    };
+export const createAdminAccount = async (accountData) => {
+  const hashedPassword = await bcrypt.hash(accountData.password, 10); // 10 adalah saltRounds default
 
-    return await accountRepo.create(newAccount);
+  console.log("Hashed password on account creation:", hashedPassword); // Debugging hash password
+
+  const newAccount = {
+    ...accountData,
+    password: hashedPassword,
   };
+
+  return await accountRepo.createAdmin(newAccount);
+};
 
   export const getAccountById = async (id) => {
     try {
@@ -27,6 +40,7 @@
     }
   };
 
+
   export const updateAccount = async (id, updateData) => {
     try {
       return await accountRepo.updateAccount(id, updateData);
@@ -35,26 +49,81 @@
     }
   };
 
+export const updateAccountbyId = async (userID, updateData) => {
+  try {
+    // Cari akun berdasarkan userID
+    const account = await getAccountById(userID);
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    // Update akun dengan data baru
+    const updatedAccount = await accountRepo.updateAccountById(userID, updateData);
+
+    return updatedAccount;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const editAccountService = async (userID, updateData) => {
+  try {
+    // Memastikan tidak ada perubahan pada field role
+    if (updateData.role) {
+      throw new Error("Role cannot be modified.");
+    }
+
+    // Panggil fungsi repository untuk memperbarui account
+    const updatedAccount = await updateAccount(userID, updateData);
+
+    return {
+      message: "Account updated successfully",
+      data: updatedAccount,
+    };
+  } catch (error) {
+    throw new Error("Error in editAccountService: " + error.message);
+  }
+};
 
 export const verifyAccount = async (email, password) => {
   const account = await accountRepo.getAccountByEmail(email);
-  if (account && (await bcrypt.compare(password, account.password))) {
-    const { password, ...accountWithoutPassword } = account;
-    return accountWithoutPassword;
+
+  if (account) {
+    console.log("Account found for verification:", account);
+
+    const isPasswordValid = await bcrypt.compare(password, account.password);
+    console.log("Password valid:", isPasswordValid); 
+
+    if (isPasswordValid) {
+      const { password, ...accountWithoutPassword } = account;
+      return accountWithoutPassword;
+    }
   }
   return null;
+};
+
+export const getAccountDetails = async (id) => {
+  try {
+    const account = await getAccountById(id);
+    const { password, ...accountWithoutPassword } = account; // Hilangkan password dari hasil
+
+    return accountWithoutPassword; // Kembalikan data tanpa password
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
 export const fetchPendingAccounts = async () => {
   try {
     const accounts = await accountRepo.getPendingAccounts();
     return accounts;
+
   } catch (error) {
     console.error("Error in fetchPendingAccounts service:", error);
     throw error;
   }
 };
-
 
 export const approveAccountById = async (userId) => {
   return await accountRepo.approveAccount(userId);
@@ -64,11 +133,11 @@ export const rejectAccountById = async (userId) => {
   return await accountRepo.rejectAccount(userId);
 };
 
+export const deleteAccount = async (id) => {
+  try {
+    return await accountRepo.deleteAccount(id);
+  } catch (error) {
+    throw error;
+  }
+};
 
-  export const deleteAccount = async (id) => {
-    try {
-      return await accountRepo.deleteAccount(id);
-    } catch (error) {
-      throw error;
-    }
-  };

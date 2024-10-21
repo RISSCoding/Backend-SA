@@ -1,99 +1,124 @@
-import * as presenceRepo from './presenceRepo.js';
-import { differenceInMinutes, parse, format } from 'date-fns';
-import config from '../../config/config.js'; // Update import path
-import * as notificationService from '../notification/notificationService.js';
+import * as presenceRepo from "./presenceRepo.js";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-export const checkDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371e3; // Radius Bumi dalam meter
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  const distance = R * c; // Jarak dalam meter
-  console.log(`Calculated distance: ${distance} meters`);
-  return distance;
+// Fungsi untuk mendapatkan jadwal hari ini untuk pengguna tertentu
+export const getTodaySchedule = async (userID) => {
+  const today = new Date().toISOString().split("T")[0]; // Ambil tanggal hari ini dalam format YYYY-MM-DD
+  return await presenceRepo.getScheduleForToday(userID, today);
 };
 
-export const isWithinAllowedRadius = (latitude, longitude) => {
-  const distance = checkDistance(
-    latitude,
-    longitude,
-    config.OFFICE_LATITUDE,
-    config.OFFICE_LONGITUDE
-  );
-  console.log(`Is within allowed radius: ${distance <= config.ALLOWED_RADIUS}`);
-  return distance <= config.ALLOWED_RADIUS;
+// Fungsi untuk membuat data check-in
+export const createPresence = async (userID, presenceData) => {
+  return await presenceRepo.createPresence(userID, presenceData);
 };
 
-export const determineStatus = (time, type) => {
-  const scheduledTime = parse(type === 'checkIn' ? config.CHECK_IN_TIME : config.CHECK_OUT_TIME, 'HH:mm', new Date());
-  const diffInMinutes = differenceInMinutes(time, scheduledTime);
-  return diffInMinutes > 5 ? 'LATE' : 'PRESENT';
-};
-
-export const isWorkDay = (date) => {
-  const dayOfWeek = format(date, 'EEEE');
-  return config.WORK_DAYS.includes(dayOfWeek);
-};
-
-export const isWithinWorkHours = (time, type) => {
-  const scheduledTime = parse(type === 'checkIn' ? config.CHECK_IN_TIME : config.CHECK_OUT_TIME, 'HH:mm', new Date());
-  const currentTime = parse(format(time, 'HH:mm'), 'HH:mm', new Date());
-  
-  return currentTime >= scheduledTime;
-};
-
-export const recordPresence = async (userId, latitude, longitude, type) => {
-  const now = new Date();
-  
-  if (!isWorkDay(now)) {
-    throw new Error('Presence can only be recorded on work days (Monday to Friday).');
-  }
-
-  if (!isWithinWorkHours(now, type)) {
-    throw new Error(`${type === 'checkIn' ? 'Check-in' : 'Check-out'} is not allowed at this time.`);
-  }
-
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  let presence = await presenceRepo.getPresenceByUserAndDate(userId, today);
+// Fungsi untuk meng-update data check-out
+export const updatePresence = async (userID, presenceData) => {
+  const presence = await presenceRepo.getPresenceForToday(userID);
 
   if (!presence) {
-    if (type === 'checkOut') {
-      throw new Error('Cannot check out without a prior check-in.');
-    }
-    presence = await presenceRepo.createPresence({
-      userID: userId,
-      checkInTime: now,
-      checkInLocation: `${latitude},${longitude}`,
-      status: determineStatus(now, type),
-    });
-  } else {
-    if (type === 'checkIn') {
-      throw new Error('Already checked in for today.');
-    }
-    presence = await presenceRepo.updatePresence(presence.id, {
-      checkOutTime: now,
-      checkOutLocation: `${latitude},${longitude}`,
-      status: determineStatus(now, type),
-    });
+    throw new Error("No presence data found for today.");
   }
 
-  if (presence.status === 'LATE') {
-    await notificationService.createNotification({
-      userId: userId,
-      message: `You were late for ${type === 'checkIn' ? 'check-in' : 'check-out'} on ${now.toLocaleDateString()}`,
-      type: 'PRESENCE_DELAY',
-    });
-  }
-
-  return presence;
+  return await presenceRepo.updatePresence(presence.id, presenceData);
 };
 
+export const getPresenceByUserIdAndDate = async (userID, date) => {
+  const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
+  return prisma.presence.findFirst({
+    where: {
+      userId: userID,
+      checkInTime: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+    },
+  });
+};
+
+// Fungsi untuk mendapatkan statistik harian
+export const getDailyStatistics = async (date) => {
+  const rawData = await presenceRepo.getDailyStatistics(date);
+  const statistics = processStatistics(rawData);
+  return statistics;
+};
+
+// Fungsi untuk mendapatkan statistik bulanan
+export const getMonthlyStatistics = async (year, month) => {
+  const rawData = await presenceRepo.getMonthlyStatistics(year, month);
+  const statistics = aggregateMonthlyStatistics(rawData, year, month);
+  return statistics;
+};
+
+// Fungsi untuk mendapatkan statistik tahunan
+export const getYearlyStatistics = async (year) => {
+  const rawData = await presenceRepo.getYearlyStatistics(year);
+  const statistics = aggregateYearlyStatistics(rawData);
+  return statistics;
+};
+
+// Fungsi untuk memproses statistik mentah dari repository
+const processStatistics = (rawData) => {
+  const presentCount =
+    rawData.find((item) => item.status === "PRESENT")?._count.status || 0;
+  const lateCount =
+    rawData.find((item) => item.status === "LATE")?._count.status || 0;
+  const leaveCount =
+    rawData.find((item) => item.status === "LEAVE")?._count.status || 0;
+
+  return { presentCount, lateCount, leaveCount };
+};
+
+// Fungsi untuk mendapatkan jumlah hari dalam bulan berdasarkan tahun dan bulan
+const getDaysInMonth = (year, month) => {
+  return new Date(year, month, 0).getDate(); // Mengembalikan jumlah hari dalam bulan
+};
+
+// Agregasi bulanan
+const aggregateMonthlyStatistics = (rawData, year, month) => {
+  const daysInMonth = getDaysInMonth(year, month);
+  const result = Array.from({ length: daysInMonth }, (_, i) => ({
+    day: i + 1,
+    presentCount: 0,
+    lateCount: 0,
+    leaveCount: 0,
+  }));
+
+  rawData.forEach((record) => {
+    const day = new Date(record.checkInTime).getDate();
+    if (record.status === "PRESENT")
+      result[day - 1].presentCount += record._count.status;
+    if (record.status === "LATE")
+      result[day - 1].lateCount += record._count.status;
+    if (record.status === "LEAVE")
+      result[day - 1].leaveCount += record._count.status;
+  });
+
+  return result;
+};
+
+// Agregasi tahunan
+const aggregateYearlyStatistics = (rawData) => {
+  const result = Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    presentCount: 0,
+    lateCount: 0,
+    leaveCount: 0,
+  }));
+
+  rawData.forEach((record) => {
+    const month = new Date(record.checkInTime).getMonth();
+    if (record.status === "PRESENT")
+      result[month].presentCount += record._count.status;
+    if (record.status === "LATE")
+      result[month].lateCount += record._count.status;
+    if (record.status === "LEAVE")
+      result[month].leaveCount += record._count.status;
+  });
+
+  return result;
+};

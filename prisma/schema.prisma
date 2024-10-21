@@ -38,23 +38,27 @@ enum PresenceStatus {
 }
 
 model Account {
-  userID      Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String
-  phone       String?  
-  position    String?
-  division    String?
-  facePhoto   String?
-  role        String   @default("USER")
-  isApproved  Boolean  @default(false)   
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  presences   Presence[] 
-  notifications Notification[]
-  leaverequest  LeaveRequest[]
+  userID          Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password        String
+  phone           String?
+  adress          String?
+  yearscareer     String?
+  position        String?
+  division        String?
+  facePhoto       String?
+  role            String           @default("ADMIN")
+  isApproved      Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  presences       Presence[]
+  notifications   Notification[]
+  leaverequest    LeaveRequest[]
+  leaveBalance    Int              @default(12) 
+  lastReset       DateTime         @default(now()) 
+  carryOver       Int              @default(0)
 }
-
 
 
 model Schedule {
@@ -63,6 +67,7 @@ model Schedule {
   startTime DateTime
   endTime   DateTime
 }
+
 
 model Presence {
   id               Int      @id @default(autoincrement())
@@ -73,10 +78,9 @@ model Presence {
   checkOutLocation String?
   status          String
   user            Account  @relation(fields: [userId], references: [userID])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
-
 
 model LeaveRequest {
   id          Int         @id @default(autoincrement())
@@ -90,6 +94,7 @@ model LeaveRequest {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
+
 
 model Notification {
   id        Int      @id @default(autoincrement())

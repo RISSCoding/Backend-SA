@@ -8,18 +8,21 @@ import * as notificationController from "../features/notification/notificationCo
 import { isAdmin } from "../middleware/roleMiddleware.js";
 import { authenticateToken } from "../middleware/authMiddleware.js";
 
+
 const router = express.Router();
 
 // Account routes
 router.post("/login", accountController.login);
-router.get("/accounts", accountController.getAllAccounts);
+router.post("/logout", accountController.logout);
+router.get("/accounts", authenticateToken, isAdmin, accountController.getAllAccounts);
 router.post("/accounts", accountController.createAccount);
-router.get("/accounts/:id",authenticateToken,accountController.getAccountById);
-router.put("/account/edit", authenticateToken, accountController.editAccount);
-router.get("/accounts/pending",authenticateToken,isAdmin,accountController.getPendingAccounts);
+router.post("/admin", accountController.createAdminAccount);
+router.get("/myaccount", authenticateToken, accountController.getMyAccount);
+router.put("/accounts/:userID", authenticateToken, isAdmin, accountController.editAccount);
+router.get("/accounts/pending", authenticateToken, isAdmin, accountController.getPendingAccounts);
+router.put("/accounts/:id/approve", accountController.approveAccount);
+router.put("/accounts/:id/reject", authenticateToken, isAdmin, accountController.rejectAccount);
 
-router.get("/pending", accountController.getPendingAccounts);
-router.patch("/:userId", accountController.approveRejectAccount);
 
 // Schedule routes
 router.get("/schedules", authenticateToken, scheduleController.getAllSchedules);
@@ -28,21 +31,24 @@ router.put("/schedules/:id",authenticateToken,isAdmin,scheduleController.updateS
 router.delete("/schedules/:id",authenticateToken,isAdmin,scheduleController.deleteSchedule);
 
 // Presence routes
-router.post("/presence", authenticateToken, presenceController.recordPresence);
+router.post("/checkin", authenticateToken, presenceController.handleCheckIn);
+router.post("/checkout", authenticateToken, presenceController.handleCheckOut);
 
-// // Leave routes
-router.put("/leave/:leaveId/approve",authenticateToken,isAdmin,leaveController.approveLeaveRequest);
-router.put("/leave/:leaveId/reject",authenticateToken,isAdmin,leaveController.rejectLeaveRequest);
+// Leave routes
+router.put("/leave/:leaveId/approve", authenticateToken, isAdmin, leaveController.approveLeaveRequest);
+router.put("/leave/:leaveId/reject", authenticateToken, isAdmin, leaveController.rejectLeaveRequest);
 
-// // Notification routes
+// Notification routes
 router.get("/notifications",authenticateToken,notificationController.getNotifications);
 
-// // Stats routes
-// router.get('/presence/statistics', authenticateToken, presenceController.getDailyStatistics);
-// router.get('/presence/stats', authenticateToken, presenceController.getPresenceStats);
-// router.get('/leave/stats', authenticateToken, leaveController.getLeaveStats);
-// router.get('/leave/stats/:type', authenticateToken, leaveController.getLeaveStatsByType);
-router.get("/stats/combined",authenticateToken,statsController.getCombinedStats
-);
+
+// stats routes
+// router.get("/statistics/daily",presenceController.getDailyStatistics);
+// router.get("/statistics/monthly",presenceController.getMonthlyStatistics);
+// router.get("/statistics/yearly",presenceController.getYearlyStatistics
+// );
+router.get("/stats/combined/:year/:month",statsController.getCombinedStats);
 
 export default router;
+
+

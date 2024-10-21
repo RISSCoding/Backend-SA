@@ -1,18 +1,15 @@
-import jwt from 'jsonwebtoken'; // Import jsonwebtoken untuk verifikasi JWT
-import config from '../config/config.js'; // Import konfigurasi untuk mendapatkan secret key
+import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 
 export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = req.cookies.token; // Ambil token dari cookie
 
-  if (!token) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401); // Tidak ada token, akses ditolak
 
   jwt.verify(token, config.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.sendStatus(403); // Token tidak valid
 
-    req.user = user; // pastikan `userID` disimpan di req.user
-    next();
+    req.user = user; // Menyimpan data user (termasuk userID dan role) dari token
+    next(); // Lanjut ke fungsi berikutnya
   });
 };
-
-

@@ -1,0 +1,57 @@
+name: Deploy Node.js App with Prisma to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Install SSH Client and Rsync
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openssh-client rsync
+
+    - name: Copy PEM File to Action Runner
+      run: |
+        echo "${{ secrets.EC2_KEY }}" > ec2-key.pem
+        chmod 600 ec2-key.pem
+
+    - name: Sync Files to EC2 (exclude .env)
+      run: |
+        rsync -avz --delete --exclude '.env' -e "ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }}" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/staging/smart-att
+
+    - name: Install Dependencies and Check Prisma Migrate Status
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Set the Node.js version to 20.x if it's not already set
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # Load NVM
+          nvm install 20
+          nvm use 20
+          # Verify Node.js version
+          node -v
+          # Install PM2 if not already installed
+          npm install -g pm2
+          # Go to the app directory
+          cd /home/ubuntu/staging/smart-att
+          # Install dependencies
+          npm install
+          # Check Prisma Migrate Status for debugging
+          npx prisma migrate status
+        EOF
+
+    - name: Run Prisma Migrations
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ec2-key.pem -p ${{ secrets.EC2_PORT }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Go to the app directory
+          cd /home/ubuntu/staging/smart-att
+          # Run Prisma Migrations
+          npx prisma migrate deploy
+        EOF
