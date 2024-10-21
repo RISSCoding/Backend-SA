@@ -23,7 +23,6 @@ router.get("/accounts/pending", authenticateToken, isAdmin, accountController.ge
 router.put("/accounts/:id/approve", accountController.approveAccount);
 router.put("/accounts/:id/reject", authenticateToken, isAdmin, accountController.rejectAccount);
 
-
 // Schedule routes
 router.get("/schedules", authenticateToken, scheduleController.getAllSchedules);
 router.post("/schedules",authenticateToken,isAdmin,scheduleController.createSchedule);
@@ -41,12 +40,10 @@ router.put("/leave/:leaveId/reject", authenticateToken, isAdmin, leaveController
 // Notification routes
 router.get("/notifications",authenticateToken,notificationController.getNotifications);
 
-
 // stats routes
-// router.get("/statistics/daily",presenceController.getDailyStatistics);
-// router.get("/statistics/monthly",presenceController.getMonthlyStatistics);
-// router.get("/statistics/yearly",presenceController.getYearlyStatistics
-// );
+router.get("/statistics/daily",presenceController.getDailyStatistics);
+router.get("/statistics/monthly",presenceController.getMonthlyStatistics);
+router.get("/statistics/yearly",presenceController.getYearlyStatistics);
 router.get("/stats/combined/:year/:month",statsController.getCombinedStats);
 
 export default router;
