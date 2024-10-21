@@ -106,13 +106,12 @@ export const login = async (req, res) => {
         { expiresIn: "1h" }
       );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: config.COOKIE_SECURE,
-      sameSite: config.COOKIE_SAMESITE,
-      domain: config.COOKIE_DOMAIN,
-      maxAge: 3600000,
-    });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true, // Always set to true when using SameSite=None
+        sameSite: "none",
+        maxAge: 3600000,
+      });
 
       res.json({ message: "Login successful", role: account.role });
     } else {
