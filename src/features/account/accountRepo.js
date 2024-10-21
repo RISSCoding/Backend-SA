@@ -153,6 +153,7 @@ export const updateAccountById = async (userID, updateData) => {
   }
 };
 
+
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({
     where: { isApproved: false },
