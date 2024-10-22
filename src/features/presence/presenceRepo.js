@@ -1,104 +1,103 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-// Mendapatkan jadwal pengguna untuk hari ini
 export const getScheduleForToday = async (userID, today) => {
-  return await prisma.schedule.findFirst({
-    where: {
-      userId: userID,
-      date: today,
-    },
-  });
+  try {
+    return await prisma.schedule.findFirst({
+      where: {
+        userId: userID,
+        date: today,
+      },
+    });
+  } catch (error) {
+    throw new Error("Error fetching today's schedule.");
+  }
 };
 
-// Membuat presensi untuk check-in
 export const createPresence = async (userID, presenceData) => {
-  return await prisma.presence.create({
-    data: {
-      userId: userID,
-      checkInTime: presenceData.checkInTime,
-      checkInLocation: presenceData.checkInLocation,
-      status: presenceData.status,
-    },
-  });
+  try {
+    return await prisma.presence.create({
+      data: {
+        userId: userID,
+        checkInTime: presenceData.checkInTime,
+        checkInLocation: presenceData.checkInLocation,
+        status: presenceData.status,
+      },
+    });
+  } catch (error) {
+    throw new Error("Error creating presence.");
+  }
 };
 
-// Mendapatkan data presensi untuk hari ini
 export const getPresenceForToday = async (userID) => {
-  const today = new Date().toISOString().split("T")[0]; // Ambil tanggal hari ini
-  return await prisma.presence.findFirst({
-    where: {
-      userId: userID,
-      checkInTime: {
-        gte: new Date(`${today}T00:00:00`),
-        lt: new Date(`${today}T23:59:59`),
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    return await prisma.presence.findFirst({
+      where: {
+        userId: userID,
+        checkInTime: {
+          gte: new Date(`${today}T00:00:00`),
+          lt: new Date(`${today}T23:59:59`),
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    throw new Error("Error fetching today's presence.");
+  }
 };
 
-// Mengupdate data presensi untuk check-out
 export const updatePresence = async (presenceID, presenceData) => {
-  return await prisma.presence.update({
-    where: { id: presenceID },
-    data: {
-      checkOutTime: presenceData.checkOutTime,
-      checkOutLocation: presenceData.checkOutLocation,
-      status: presenceData.status,
-    },
-  });
+  try {
+    return await prisma.presence.update({
+      where: { id: presenceID },
+      data: presenceData,
+    });
+  } catch (error) {
+    throw new Error("Error updating presence.");
+  }
 };
 
-// Ambil data presensi harian berdasarkan tanggal tertentu
 export const getDailyStatistics = async (date) => {
-  return prisma.presence.groupBy({
-    by: ['status'],
-    where: {
-      checkInTime: {
-        gte: new Date(date.setHours(0, 0, 0, 0)),
-        lt: new Date(date.setHours(23, 59, 59, 999)),
+  try {
+    return await prisma.presence.findMany({
+      where: {
+        checkInTime: {
+          gte: new Date(`${date.toISOString().split("T")[0]}T00:00:00`),
+          lt: new Date(`${date.toISOString().split("T")[0]}T23:59:59`),
+        },
       },
-    },
-    _count: {
-      status: true,
-    },
-  });
+    });
+  } catch (error) {
+    throw new Error("Error fetching daily statistics.");
+  }
 };
 
-// Ambil data presensi bulanan berdasarkan tahun dan bulan
 export const getMonthlyStatistics = async (year, month) => {
-  const startDate = new Date(year, month - 1, 1);
-  const endDate = new Date(year, month, 0); // Mengambil akhir bulan
-
-  return prisma.presence.groupBy({
-    by: ['status', 'checkInTime'],
-    where: {
-      checkInTime: {
-        gte: startDate,
-        lt: endDate,
+  try {
+    return await prisma.presence.findMany({
+      where: {
+        checkInTime: {
+          gte: new Date(`${year}-${month}-01T00:00:00`),
+          lt: new Date(`${year}-${month}-31T23:59:59`),
+        },
       },
-    },
-    _count: {
-      status: true,
-    },
-  });
+    });
+  } catch (error) {
+    throw new Error("Error fetching monthly statistics.");
+  }
 };
 
-// Ambil data presensi tahunan berdasarkan tahun
 export const getYearlyStatistics = async (year) => {
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year, 11, 31);
-
-  return prisma.presence.groupBy({
-    by: ['status', 'checkInTime'],
-    where: {
-      checkInTime: {
-        gte: startDate,
-        lt: endDate,
+  try {
+    return await prisma.presence.findMany({
+      where: {
+        checkInTime: {
+          gte: new Date(`${year}-01-01T00:00:00`),
+          lt: new Date(`${year}-12-31T23:59:59`),
+        },
       },
-    },
-    _count: {
-      status: true,
-    },
-  });
+    });
+  } catch (error) {
+    throw new Error("Error fetching yearly statistics.");
+  }
 };
