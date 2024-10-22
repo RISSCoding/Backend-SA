@@ -8,9 +8,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: "http://localhost:3001", 
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-    credentials: true,
+    credentials: true, 
   })
 );
 
@@ -32,6 +32,7 @@ app.use((err, req, res, next) => {
   console.error("Error:", err);
   res.status(500).json({ error: err.message || "Something went wrong" });
 });
+
 
 app.listen(config.PORT, () => {
   console.log(`Server running on port ${config.PORT}`);

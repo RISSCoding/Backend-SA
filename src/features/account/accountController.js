@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken";
 import config from "../../config/config.js";
 import * as accountService from "./accountService.js";
@@ -26,7 +25,7 @@ export const createAccount = async (req, res) => {
     phone: null,
     position: null,
     facePhoto: null,
-    division: null, 
+    division: null,
     isApproved: false,
   };
 
@@ -72,9 +71,9 @@ export const createAdminAccount = async (req, res) => {
 
 export const getMyAccount = async (req, res) => {
   try {
-    const userID = req.user.userID; 
+    const userID = req.user.userID;
 
-    const account = await accountService.getAccountDetails(userID); 
+    const account = await accountService.getAccountDetails(userID);
 
     if (!account) {
       return res.status(404).json({ error: "Account not found" });
@@ -108,7 +107,8 @@ export const login = async (req, res) => {
 
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: true, // Always set to true when using SameSite=None
+        sameSite: "none",
         maxAge: 3600000,
       });
 
@@ -123,15 +123,15 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none",
   });
-
 
   res.json({ message: "Logout successful" });
 };
 
 export const editAccount = async (req, res) => {
-  const { userID } = req.params; 
+  const { userID } = req.params;
   const updateData = req.body;
 
   try {
@@ -158,8 +158,6 @@ export const editAccount = async (req, res) => {
   }
 };
 
-
-
 export const approveAccount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -174,7 +172,6 @@ export const approveAccount = async (req, res) => {
     if (!account) {
       return res.status(404).json({ message: "Account not found" });
     }
-
 
     const updatedAccount = await accountService.updateAccount(userIdInt, {
       isApproved: true,
