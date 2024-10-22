@@ -106,24 +106,20 @@ export const login = async (req, res) => {
         { expiresIn: "1h" }
       );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: config.COOKIE_SECURE,
-      sameSite: config.COOKIE_SAMESITE,
-      domain: config.COOKIE_DOMAIN,
-      maxAge: 3600000,
-    });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600000,
+      });
 
-      res.json({ message: "Login successful", role: account.role });
+      res.json({ message: "Login successful" });
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: error.message });
     }
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 export const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
