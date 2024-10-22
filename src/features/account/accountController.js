@@ -106,7 +106,6 @@ export const login = async (req, res) => {
       );
 
       res.cookie("token", token, {
-        httpOnly: true,
         secure: true, // Always set to true when using SameSite=None
         sameSite: "none",
         maxAge: 3600000,
@@ -122,7 +121,6 @@ export const login = async (req, res) => {
 };
 export const logout = (req, res) => {
   res.clearCookie("token", {
-    httpOnly: true,
     secure: true,
     sameSite: "none",
   });
