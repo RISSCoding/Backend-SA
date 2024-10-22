@@ -87,10 +87,12 @@ export const getAccountById = async (id) => {
         userID: true,
         name: true,
         phone: true,
+        adress: true,
         password: true,
         position: true,
         division: true,
         email: true,
+        yearscareer: true,
       },
     });
     return account;
