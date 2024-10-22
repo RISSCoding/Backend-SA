@@ -112,16 +112,14 @@ export const login = async (req, res) => {
         maxAge: 3600000,
       });
 
-      res.json({ message: "Login successful", role: account.role });
+      res.json({ message: "Login successful" });
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(401).json({ error: error.message });
     }
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 export const logout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
@@ -157,6 +155,21 @@ export const editAccount = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const checkAuth = (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    return res.status(200).json({ message: "Authenticated", user: decoded });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
 
