@@ -137,6 +137,10 @@ export const editAccount = async (req, res) => {
   const { userID } = req.params; 
   const updateData = req.body;
 
+  if (role !== "ADMIN" && parseInt(userID) !== currentUserId) {
+    return res.status(403).json({ message: "Forbidden: You don't have permission to edit this account" });
+  }
+
   try {
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
