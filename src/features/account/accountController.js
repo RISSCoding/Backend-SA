@@ -112,7 +112,7 @@ export const login = async (req, res) => {
         maxAge: 3600000,
       });
 
-      res.json({ message: "Login successful" });
+      res.json({ message: "Login successful", user: account, role: account.role});
     } else {
       res.status(401).json({ error: error.message });
     }
