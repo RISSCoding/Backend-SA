@@ -49,27 +49,29 @@
       }
     };
 
-  export const updateAccountbyId = async (userID, updateData) => {
-    try {
-      // Cari akun berdasarkan userID
-      const account = await getAccountById(userID);
-
-      if (!account) {
-        throw new Error("Account not found");
+    export const updateAccountbyId = async (userID, updateData, currentUserId) => {
+      try {
+        // Cari akun berdasarkan userID
+        const account = await getAccountById(userID);
+    
+        if (!account) {
+          throw new Error("Account not found");
+        }
+    
+        // Validasi apakah pengguna saat ini memiliki izin untuk melakukan update
+        if (currentUserId.role !== "ADMIN" && currentUserId.userID !== userID) {
+          throw new Error("Permission denied. Only admins or the account owner can update this account.");
+        }
+    
+        // Update akun dengan data baru
+        const updatedAccount = await accountRepo.updateAccountById(userID, updateData);
+    
+        return updatedAccount;
+      } catch (error) {
+        throw new Error(error.message);
       }
-
-      if (currentUser.role !== "ADMIN" && currentUser.userID !== userID) {
-        throw new Error("Permission denied. Only admins or the account owner can update this account.");
-      }
-
-      // Update akun dengan data baru
-      const updatedAccount = await accountRepo.updateAccountById(userID, updateData);
-
-      return updatedAccount;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  };
+    };
+    
 
   export const editAccountService = async (userID, updateData) => {
     try {
