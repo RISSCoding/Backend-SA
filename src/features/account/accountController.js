@@ -98,27 +98,26 @@ export const login = async (req, res) => {
       return res.status(403).json({ message: "Account not approved by admin" });
     }
 
-    if (account) {
-      const token = jwt.sign(
-        { userID: account.userID, role: account.role },
-        config.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
+    // Jika verifikasi berhasil, buat token JWT
+    const token = jwt.sign(
+      { userID: account.userID, role: account.role },
+      config.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-      res.cookie("token", token, {
-        secure: true, // Always set to true when using SameSite=None
-        sameSite: "none",
-        maxAge: 3600000,
-      });
-
-      res.json({ message: "Login successful", user: account, role: account.role});
-    } else {
-      res.status(401).json({ error: error.message });
-    }
+    // Kirim respons dengan token dan detail akun tanpa cookie
+    res.json({
+      message: "Login successful",
+      user: account,
+      token,
+      role: account.role,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 export const logout = (req, res) => {
   res.clearCookie("token", {
     secure: true,
