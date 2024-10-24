@@ -71,20 +71,23 @@ export const createAdminAccount = async (req, res) => {
 
 export const getMyAccount = async (req, res) => {
   try {
-    const userID = req.user.userID;
+    const userID = req.cookies.userID; // Get userID from cookies
 
-    const account = await accountService.getAccountDetails(userID);
+    if (!userID) {
+      return res.status(400).json({ error: "User ID not found in cookies" });
+    }
+
+    const account = await accountService.getAccountDetails(userID); // Fetch account details from the service
 
     if (!account) {
       return res.status(404).json({ error: "Account not found" });
     }
 
-    res.json(account);
+    res.json(account); // Send back account data without password
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message }); // Handle any other errors
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
