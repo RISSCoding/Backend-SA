@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 
 export const authenticateToken = (req, res, next) => {
-  const token = req.cookies.token; // Ambil token dari cookie
+  const authHeader = req.headers.authorization; // Ambil Authorization header
+  const token = authHeader && authHeader.split(" ")[1]; // Ambil token dari header
 
   if (!token) return res.sendStatus(401); // Tidak ada token, akses ditolak
 
