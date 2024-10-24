@@ -71,20 +71,44 @@ export const createAdminAccount = async (req, res) => {
 
 export const getMyAccount = async (req, res) => {
   try {
-    const userID = req.user.userID;
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ error: "Authorization header missing or invalid" });
+    }
+
+    // Extract the token from the Authorization header
+    const token = authHeader.split(" ")[1];
+
+    // Verify and decode the token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET); // Ensure to replace with your JWT secret
+    } catch (error) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+
+    const userID = decoded.userID; // Assuming the token contains userID
+
+    if (!userID) {
+      return res.status(400).json({ error: "User ID not found in token" });
+    }
+
+    // Fetch account details from the service using the userID
     const account = await accountService.getAccountDetails(userID);
 
     if (!account) {
       return res.status(404).json({ error: "Account not found" });
     }
 
+    // Send back account data, excluding sensitive information
     res.json(account);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message }); // Handle other errors
   }
 };
-
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;

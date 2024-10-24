@@ -17,7 +17,7 @@ export const getAllAccounts = async () => {
         createdAt: true,
       },
       where: {
-        isApproved: true, 
+        isApproved: true,
       },
     });
   } catch (error) {
@@ -25,7 +25,6 @@ export const getAllAccounts = async () => {
     throw new Error("Error fetching all accounts");
   }
 };
-
 
 export const create = async (accountData) => {
   try {
@@ -37,7 +36,7 @@ export const create = async (accountData) => {
       data: {
         name: accountData.name,
         email: accountData.email,
-        password: accountData.password, 
+        password: accountData.password,
         phone: accountData.phone || "",
         position: null,
         facePhoto: null,
@@ -85,6 +84,7 @@ export const getAccountById = async (id) => {
       where: { userID: id },
       select: {
         userID: true,
+        facePhoto: true,
         name: true,
         phone: true,
         adress: true,
@@ -116,7 +116,6 @@ export const getAccountByEmail = async (email) => {
     throw new Error("Error fetching account by email");
   }
 };
-
 
 export const updateAccount = async (id, updateData) => {
   try {
@@ -156,7 +155,6 @@ export const updateAccountById = async (userID, updateData) => {
   }
 };
 
-
 export const getPendingAccounts = async () => {
   return prisma.account.findMany({
     where: { isApproved: false },
@@ -191,4 +189,3 @@ export const deleteAccount = async (id) => {
     throw new Error("Error deleting account");
   }
 };
-
