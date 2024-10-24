@@ -98,14 +98,12 @@ export const login = async (req, res) => {
       return res.status(403).json({ message: "Account not approved by admin" });
     }
 
-    // Jika verifikasi berhasil, buat token JWT
     const token = jwt.sign(
       { userID: account.userID, role: account.role },
       config.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    // Kirim respons dengan token dan detail akun tanpa cookie
     res.json({
       message: "Login successful",
       user: account,
@@ -116,6 +114,7 @@ export const login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 export const logout = (req, res) => {
@@ -156,7 +155,8 @@ export const editAccount = async (req, res) => {
 };
 
 export const checkAuth = (req, res) => {
-  const token = req.cookies.token;
+  const authHeader = req.headers.authorization; 
+  const token = authHeader && authHeader.split(" ")[1]; 
 
   if (!token) {
     return res.status(401).json({ message: "No token provided" });
@@ -169,6 +169,7 @@ export const checkAuth = (req, res) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
 
 export const approveAccount = async (req, res) => {
   try {
