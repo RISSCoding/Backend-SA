@@ -22,6 +22,7 @@ router.put("/accounts/:userID", authenticateToken, accountController.editAccount
 router.get("/accounts/pending", authenticateToken, isAdmin, accountController.getPendingAccounts);
 router.put("/accounts/:id/approve", authenticateToken, isAdmin, accountController.approveAccount);
 router.put("/accounts/:id/reject", authenticateToken, isAdmin, accountController.rejectAccount);
+router.get("/check-auth", accountController.checkAuth);
 
 // Schedule routes
 router.get("/schedules", authenticateToken, scheduleController.getAllSchedules);

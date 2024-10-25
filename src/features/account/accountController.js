@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import config from "../../config/config.js";
@@ -21,19 +20,18 @@ export const createAccount = async (req, res) => {
     return res.status(400).json({ message: "Passwords do not match" });
   }
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newAccount = {
-      name,
-      email,
-      password: hashedPassword,
-      phone: null,
-      position: null,
-      facePhoto: null,
-      division: null,
-      isApproved: false,
-    };
+  const newAccount = {
+    name,
+    email,
+    password,
+    phone: null,
+    position: null,
+    facePhoto: null,
+    division: null,
+    isApproved: false,
+  };
 
+  try {
     const account = await accountService.createAccount(newAccount);
     return res.status(201).json({
       message: "Account created successfully, pending admin approval",
@@ -41,8 +39,7 @@ export const createAccount = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-};
+  }}
 
 // Membuat akun admin
 export const createAdminAccount = async (req, res) => {
@@ -77,7 +74,7 @@ export const createAdminAccount = async (req, res) => {
 
 export const getMyAccount = async (req, res) => {
   try {
-    const userID = req.user.userID; 
+    const userID = req.user.userID;
 
     const account = await accountService.getAccountDetails(userID);
 
@@ -112,36 +109,33 @@ export const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Always set to true when using SameSite=None
-      sameSite: "none",
-      maxAge: 3600000,
-    });
+      res.cookie("token", token, {
+        secure: true, 
+        httpOnly: true,// Always set to true when using SameSite=None
+        sameSite: "none",
+        maxAge: 3600000,
+      });
 
-    res.json({ message: "Login successful", role: account.role });
-  } else {
-    res.status(401).json({ error: "Invalid credentials" });
-  }
+      res.json({ message: "Login successful", user: account, role: account.role});
+    } else {
+      res.status(401).json({ error: error.message });
+    }
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 export const logout = (req, res) => {
   res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none",
   });
-
 
   res.json({ message: "Logout successful" });
 };
 
 
 export const editAccount = async (req, res) => {
-  const { userID } = req.params; 
+  const { userID } = req.params;
   const updateData = req.body;
 
   const currentUserId = req.user.userID;
@@ -181,7 +175,20 @@ export const editAccount = async (req, res) => {
   }
 };
 
+export const checkAuth = (req, res) => {
+  const token = req.cookies.token;
 
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, config.JWT_SECRET);
+    return res.status(200).json({ message: "Authenticated", user: decoded });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
 
 export const approveAccount = async (req, res) => {
   try {
@@ -230,15 +237,15 @@ export const rejectAccount = async (req, res) => {
   }
 };
 
-export const getPendingAccounts = async (req, res) => {
-  try {
-    const accounts = await accountService.fetchPendingAccounts();
-    res.status(200).json(accounts);
-  } catch (error) {
-    console.error("Error fetching pending accounts:", error);
-    res.status(500).json({
-      message: "Error fetching pending accounts",
-      error: error.message,
-    });
-  }
-};
+  export const getPendingAccounts = async (req, res) => {
+    try {
+      const accounts = await accountService.fetchPendingAccounts();
+      res.status(200).json(accounts);
+    } catch (error) {
+      console.error("Error fetching pending accounts:", error);
+      res.status(500).json({
+        message: "Error fetching pending accounts",
+        error: error.message,
+      });
+    }
+  };
