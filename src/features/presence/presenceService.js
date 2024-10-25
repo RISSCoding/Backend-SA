@@ -1,5 +1,5 @@
 import * as presenceRepo from "./presenceRepo.js";
-import { PrismaClient } from "@prisma/client";
+import {PrismaClient} from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getTodaySchedule = async (userID) => {
