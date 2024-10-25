@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import config from "../../config/config.js";
 import * as accountService from "./accountService.js";
 
+// Mendapatkan semua akun
 export const getAllAccounts = async (req, res) => {
   try {
     const accounts = await accountService.getAllAccounts();
@@ -37,9 +39,9 @@ export const createAccount = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-};
+  }}
 
+// Membuat akun admin
 export const createAdminAccount = async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
 
@@ -47,18 +49,19 @@ export const createAdminAccount = async (req, res) => {
     return res.status(400).json({ message: "Passwords do not match" });
   }
 
-  const newAccount = {
-    name,
-    email,
-    password,
-    phone: null,
-    position: null,
-    facePhoto: null,
-    division: null,
-    isApproved: false,
-  };
-
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAccount = {
+      name,
+      email,
+      password: hashedPassword,
+      phone: null,
+      position: null,
+      facePhoto: null,
+      division: null,
+      isApproved: false,
+    };
+
     const account = await accountService.createAdminAccount(newAccount);
     return res.status(201).json({
       message: "Account created successfully, pending admin approval",
@@ -150,21 +153,35 @@ export const logout = (req, res) => {
   res.json({ message: "Logout successful" });
 };
 
+
 export const editAccount = async (req, res) => {
   const { userID } = req.params;
   const updateData = req.body;
+
+  const currentUserId = req.user.userID;
+  const role = req.user.role;
+
+  const userIdInt = parseInt(userID, 10);
+  if (isNaN(userIdInt)) {
+    return res.status(400).json({ message: "Invalid user ID format" });
+  }
+
+  if (role !== "ADMIN" && userIdInt !== currentUserId) {
+    return res.status(403).json({ message: "Forbidden: You don't have permission to edit this account" });
+  }
 
   try {
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
 
+    // Tambahkan currentUser saat memanggil service
     const updatedAccount = await accountService.updateAccountbyId(
-      parseInt(userID),
-      updateData
+      parseInt(userIdInt),
+      updateData,
+      { userID: currentUserId, role: role } // Teruskan informasi currentUser (userID dan role)
     );
 
-    // Jika akun tidak ditemukan
     if (!updatedAccount) {
       return res.status(404).json({ message: "Account not found" });
     }
@@ -198,7 +215,6 @@ export const checkAuth = (req, res) => {
 export const approveAccount = async (req, res) => {
   try {
     const { id } = req.params;
-
     const userIdInt = parseInt(id, 10);
 
     if (isNaN(userIdInt)) {
@@ -221,36 +237,37 @@ export const approveAccount = async (req, res) => {
   } catch (error) {
     console.error("Error approving account:", error);
     return res
-      .status(500)
-      .json({ error: "An error occurred while approving the account" });
+    .status(500)
+    .json({ error: "An error occurred while approving the account" });
   }
 };
 
+// Menolak akun
 export const rejectAccount = async (req, res) => {
   const { id } = req.params;
 
   try {
     await accountService.rejectAccountById(id);
     return res
-      .status(200)
-      .json({ message: "Account rejected and deleted successfully" });
+    .status(200)
+    .json({ message: "Account rejected and deleted successfully" });
   } catch (error) {
     console.error("Error in rejectAccount:", error);
     return res
-      .status(500)
-      .json({ message: "Error rejecting account", error: error.message });
+    .status(500)
+    .json({ message: "Error rejecting account", error: error.message });
   }
 };
 
-export const getPendingAccounts = async (req, res) => {
-  try {
-    const accounts = await accountService.fetchPendingAccounts();
-    res.status(200).json(accounts);
-  } catch (error) {
-    console.error("Error fetching pending accounts:", error);
-    res.status(500).json({
-      message: "Error fetching pending accounts",
-      error: error.message,
-    });
-  }
-};
+  export const getPendingAccounts = async (req, res) => {
+    try {
+      const accounts = await accountService.fetchPendingAccounts();
+      res.status(200).json(accounts);
+    } catch (error) {
+      console.error("Error fetching pending accounts:", error);
+      res.status(500).json({
+        message: "Error fetching pending accounts",
+        error: error.message,
+      });
+    }
+  };
