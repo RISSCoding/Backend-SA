@@ -7,7 +7,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://smart-att.curaweda.com",
+    origin: "https://smart-att.curaweda.com",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
   })
