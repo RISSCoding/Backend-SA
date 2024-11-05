@@ -7,6 +7,8 @@
 
 Welcome to the backend repository for **Smart Attendance**, a simple yet efficient attendance management system that leverages facial recognition technology for streamlined and secure attendance tracking.
 
+[View Smart Attendance](https://smart-att.curaweda.com/)
+
 ## Table of Contents
 - [Features](#features)
 - [Installation](#installation)
