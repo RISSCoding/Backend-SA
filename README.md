@@ -1,7 +1,6 @@
+# Smart Attendance - Backend
 
 ![image (19)](https://github.com/user-attachments/assets/99d5bc92-8d22-439c-8726-f851dc1a4be0)
-
-# Smart Attendance - Backend
 
 [![Node.js](https://img.shields.io/badge/Node.js-v18.x-green)](https://nodejs.org/) 
 [![Express.js](https://img.shields.io/badge/Express-v4.x-lightgrey)](https://expressjs.com/) 
